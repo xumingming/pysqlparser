@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-from token import EOF
-
 DEBUG = False
 
 def is_whitespace(ch):
@@ -12,7 +10,7 @@ def is_first_identifier_char(ch):
     """
     Whether the specified char is the head of an identifier
     """
-    if ch == EOF:
+    if not ch:
         return False
 
     ret = (('a' <= ch <= 'z') or ('A' <= ch <= 'Z') or ch == '`' or ch == '_' or ch == '$'
@@ -23,7 +21,7 @@ def is_identifier_char(ch):
     """
     Whether the specified char is the head of an identifier
     """
-    if ch == EOF:
+    if not ch:
         return False
 
     ret = (('a' <= ch <= 'z') or ('A' <= ch <= 'Z') or ('0' <= ch <= '9') or ch == '`' or ch == '_' or ch == '$'

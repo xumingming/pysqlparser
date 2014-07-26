@@ -89,6 +89,8 @@ DOT = Token(".")
 
 # specials
 EOF = Token("EOF")
+LITERAL_INT = Token("INT")
+LITERAL_FLOAT = Token("FLOAT")
 
 # miscs
 NUMBER = Token("NUM")
