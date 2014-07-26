@@ -14,9 +14,29 @@ class LexerTestCase(unittest.TestCase):
             lexer.next_token()
 
     def test_identifier(self):
+        # first char is lowercase
         lexer = create_lexer("x123_456")
-        tokens = lexer.tokens()
-        self.assertEquals([IDENTIFIER], tokens)
+        lexer.next_token()
+        self.assertEquals(IDENTIFIER, lexer.token)
+        self.assertEquals("x123_456", lexer.token_str)
+
+        # first char is uppercase
+        lexer = create_lexer("X123_456")
+        lexer.next_token()
+        self.assertEquals(IDENTIFIER, lexer.token)
+        self.assertEquals("X123_456", lexer.token_str)
+
+        # first char is underscore
+        lexer = create_lexer("_X123_456")
+        lexer.next_token()
+        self.assertEquals(IDENTIFIER, lexer.token)
+        self.assertEquals("_X123_456", lexer.token_str)
+
+        # first char is dollar
+        lexer = create_lexer("$123_456")
+        lexer.next_token()
+        self.assertEquals(IDENTIFIER, lexer.token)
+        self.assertEquals("$123_456", lexer.token_str)
 
     def test_number(self):
         # normal integer
