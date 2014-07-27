@@ -144,8 +144,10 @@ class Lexer:
         self.mark = self.pos
         self.buf_pos = 0
 
-        while True and self.pos < 10:
+        while True:
             debug("in scan_string, ch: ", self.ch, "=? ", self.ch == "'")
+            if self.ch == '\n':
+                raise InvalidCharException("uncompleted string")
             if self.ch == "'":
                 break
             else:
