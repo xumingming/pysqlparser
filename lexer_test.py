@@ -81,10 +81,11 @@ class LexerTestCase(unittest.TestCase):
         lexer.next_token()
         self.assertEquals(EOF, lexer.token)
 
-        lexer = create_lexer("'ab\\'cde'")
+    def test_comment(self):
+        lexer = create_lexer("--hello")
         lexer.next_token()
-        self.assertEquals(LITERAL_STRING, lexer.token)
-        self.assertEquals("ab\\'cde", lexer.token_str)
+        self.assertEquals(LITERAL_COMMENT, lexer.token)
+        self.assertEquals("hello", lexer.token_str)
         lexer.next_token()
         self.assertEquals(EOF, lexer.token)
 

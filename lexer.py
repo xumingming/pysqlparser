@@ -64,15 +64,71 @@ class Lexer:
         debug("scanning identifier: ", self.token)
 
     def scan_operator(self):
-        while True:
-            if self.ch == '*':
-                self.token = STAR
+        if self.ch == '+':
+            self.scan_char()
+            self.token = PLUS
+            self.token_str = '+'
+        elif self.ch == '-':
+            self.scan_char()
+            self.token = MINUS
+            self.token_str = '-'
+        elif self.ch == '*':
+            self.scan_char()
+            self.token = STAR
+            self.token_str = '*'
+        elif self.ch == '/':
+            self.scan_char()
+            self.token = SLASH
+            self.token_str = '/'            
+        elif self.ch == '=':
+            self.scan_char()
+            self.token = EQ
+            self.token_str = '='
+        elif self.ch == '>':
+            self.scan_char()
+            if self.ch == '=':
+                self.token = GTEQ
+                self.token_str = '>='
+            else:
+                self.token = GT
+                self.token_str = '>'
+        elif self.ch == '<':
+            self.scan_char()()
+            if self.ch == '=':
+                self.token = LTEQ
+                self.token_str = '<='
+                return
+            elif self.ch == '>':
+                self.token = NEQ
+                self.token_str = '<>'
+                return
+            else:
+                self.token = LT
+                self.token_str = '<'
+        elif self.ch == '?':
+            self.token = QUES
+            self.token_str = '?'
+        else:
+            raise InvalidCharException("invalid char: " + self.ch)
 
         debug("scanning operator: ", self.ch)
 
     def scan_comment(self):
-        pass
+        if self.ch != '-':
+            raise InvalidCharException("invalid char: " + self.ch)
 
+        self.scan_char()
+        if self.ch != '-':
+            raise InvalidCharException("not a valid comment: " + self.ch)
+        self.mark = self.pos + 1
+        self.buf_pos = 0
+        while self.ch != '\n' and self.ch != None:
+            self.scan_char()
+            self.buf_pos += 1
+
+        self.token = LITERAL_COMMENT
+        self.token_str = self.sql[self.mark : self.mark + self.buf_pos]
+        
     def char_at(self, i):
         """
         """
@@ -162,13 +218,16 @@ class Lexer:
                 self.token_str = '+'
                 return
             elif self.ch == '-':
-                self.scan_char()
-                self.token = MINUS
-                self.token_str = '-'
+                next_char = self.char_at(self.pos + 1)
+                if next_char == '-':
+                    self.scan_comment()
+                else:
+                    scan_operator()
+
                 return
             elif self.ch == '/':
                 self.scan_char()
-                self.token = DIVIDE
+                self.token = SLASH
                 self.token_str = '/'
                 return
             else:
