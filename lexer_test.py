@@ -74,9 +74,20 @@ class LexerTestCase(unittest.TestCase):
         #self.assertEquals([LITERAL_FLOAT], tokens)
 
     def test_string(self):
-        #lexer = create_lexer("\"abcde\"")
-        #self.helper(lexer.tokens())
-        pass
+        lexer = create_lexer("'abcde'")
+        lexer.next_token()
+        self.assertEquals(LITERAL_STRING, lexer.token)
+        self.assertEquals("abcde", lexer.token_str)
+        lexer.next_token()
+        self.assertEquals(EOF, lexer.token)
+
+        lexer = create_lexer("'ab\\'cde'")
+        lexer.next_token()
+        self.assertEquals(LITERAL_STRING, lexer.token)
+        self.assertEquals("ab\\'cde", lexer.token_str)
+        lexer.next_token()
+        self.assertEquals(EOF, lexer.token)
+
 
     def test_select(self):
         lexer = create_lexer("Select * from xumm")

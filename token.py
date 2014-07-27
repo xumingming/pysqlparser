@@ -89,8 +89,9 @@ DOT = Token(".")
 
 # specials
 EOF = Token("EOF")
-LITERAL_INT = Token("INT")
-LITERAL_FLOAT = Token("FLOAT")
+LITERAL_INT = Token("LITERAL_INT")
+LITERAL_FLOAT = Token("LITERAL_FLOAT")
+LITERAL_STRING = Token("LITERAL_STRING")
 
 # miscs
 NUMBER = Token("NUM")

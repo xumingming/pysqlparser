@@ -84,8 +84,21 @@ class Lexer:
         return ret
 
     def scan_string(self):
-        if self.is_eof():
-            raise
+        self.scan_char()
+        self.mark = self.pos
+        self.buf_pos = 0
+
+        while True and self.pos < 10:
+            debug("in scan_string, ch: ", self.ch, "=? ", self.ch == "'")
+            if self.ch == "'":
+                break
+            else:
+                self.buf_pos += 1
+                self.scan_char()
+
+        self.scan_char()
+        self.token = LITERAL_STRING
+        self.token_str = self.sql[self.mark : self.mark + self.buf_pos]
 
     def next_token(self):
         debug("next_token: ch: ", self.ch)
