@@ -206,7 +206,11 @@ class Lexer:
             if self.ch == '\'':
                 self.scan_string()
                 return
-
+            if self.ch == ';':
+                self.scan_char()
+                self.token = SEMI
+                self.token_str = ';'
+                return
             if self.ch == '*':
                 self.scan_char()
                 self.token = STAR

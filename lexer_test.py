@@ -10,7 +10,7 @@ class LexerTestCase(unittest.TestCase):
         lexer = Lexer(sql)
         lexer.next_token()
         while lexer.token.name != EOF.name:
-            lexer.info()
+            print lexer.info()
             lexer.next_token()
 
     def test_identifier(self):
@@ -100,6 +100,16 @@ class LexerTestCase(unittest.TestCase):
         tokens = lexer.tokens()
         self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN, IDENTIFIER, IDENTIFIER, COMMA, IDENTIFIER, STRING, RPAREN], tokens)
 
+
+    def test_comment_and_select(self):
+        sql = """
+        -- this is a comment
+        select * from xumm;
+        """
+        lexer = create_lexer(sql)
+        tokens = lexer.tokens()
+        self.assertEquals([LITERAL_COMMENT, SELECT, STAR,
+                           FROM, IDENTIFIER, SEMI], tokens)
 
 if __name__ == '__main__':
     unittest.main()
