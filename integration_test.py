@@ -27,5 +27,7 @@ class IntegrationTestCase(unittest.TestCase):
     def test_select_a_string(self):
         sql = """
         select 'hello' from xumm;
+        create table person(id int, name string, age int);
+        drop table helloworld;
         """
-        self.helper(sql)
+        

@@ -10,3 +10,9 @@ class InvalidCharException(RuntimeError):
         """
         self.msg = msg
         
+class ParserException(RuntimeError):
+    def __init__(self, msg):
+        """
+        """
+        self.msg = msg
+    

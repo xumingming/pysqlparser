@@ -96,7 +96,40 @@ class LexerTestCase(unittest.TestCase):
         self.assertEquals([SELECT, STAR, FROM, IDENTIFIER], tokens)
 
     def test_create_table(self):
+        # normal create table
         lexer = create_lexer("create table xumm(id int, name string)")
         tokens = lexer.tokens()
-        self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN, IDENTIFIER, IDENTIFIER, COMMA, IDENTIFIER, STRING, RPAREN], tokens)
+        self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN, IDENTIFIER, INT, COMMA, IDENTIFIER, STRING, RPAREN], tokens)
+
+        # create table with comment
+        lexer = create_lexer("create table xumm(id int comment 'id', name string comment 'name')")
+        tokens = lexer.tokens()
+        self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN,
+                           IDENTIFIER, INT, COMMENT, LITERAL_STRING,
+                           COMMA, IDENTIFIER, STRING, COMMENT, LITERAL_STRING, RPAREN], tokens)
+
+        # create table if not exists
+        lexer = create_lexer("create table if not exists xumm(id int, name string)")
+        tokens = lexer.tokens()
+        self.assertEquals([CREATE, TABLE, IF, NOT, EXISTS, IDENTIFIER, LPAREN,
+                           IDENTIFIER, INT, COMMA, IDENTIFIER, STRING, RPAREN], tokens)
+
+        # create table lifecycle
+        lexer = create_lexer("create table xumm(id int, name string) lifecycle 1")
+        tokens = lexer.tokens()
+        self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN,
+                           IDENTIFIER, INT, COMMA, IDENTIFIER, STRING, RPAREN, LIFECYCLE, LITERAL_INT], tokens)
+
+        # create table as
+        lexer = create_lexer("create table xumm(id int, name string) as select * from auto_test")
+        tokens = lexer.tokens()
+        self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN, IDENTIFIER, INT, COMMA, 
+                           IDENTIFIER, STRING, RPAREN, AS, SELECT, STAR, FROM, IDENTIFIER], tokens)
+
+        # create table like xxx
+        lexer = create_lexer("create table xumm(id int, name string) like auto_test")
+        tokens = lexer.tokens()
+        self.assertEquals([CREATE, TABLE, IDENTIFIER, LPAREN, IDENTIFIER, INT, COMMA, 
+                           IDENTIFIER, STRING, RPAREN, LIKE, IDENTIFIER], tokens)
+        
 
