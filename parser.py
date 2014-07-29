@@ -13,7 +13,10 @@ class Parser:
         get the current token
         """
         return self.lexer.token
-        
+
+    def token_str(self):
+        return self.lexer.token_str
+
     def next_token(self):
         self.lexer.next_token()
 
@@ -39,22 +42,22 @@ class Parser:
             self.accept(EXISTS)
             self.ifNotExists = True
 
-        stmt.name = self.lexer.token_str
+        stmt.name = self.token_str()
         self.next_token()
 
         if self.token() != LIKE:
             self.accept(LPAREN)
             while True:
                 column = CreateTableColumn()
-                column.name = self.lexer.token_str
+                column.name = self.token_str()
                 self.next_token()
 
-                column.type = self.lexer.token_str
+                column.type = self.token_str()
                 self.next_token()
 
                 if self.token() == COMMENT:
                     self.accept(COMMENT)
-                    column.comment = self.lexer.token_str
+                    column.comment = self.token_str()
                     self.next_token()
 
                 stmt.columns.append(column)
@@ -67,7 +70,7 @@ class Parser:
             
             if self.token() == COMMENT:
                 self.next_token()
-                stmt.comment = self.lexer.token_str
+                stmt.comment = self.token_str()
                 self.next_token()
 
             if self.token() == PARTITIONED:
@@ -79,15 +82,15 @@ class Parser:
                 self.accept(LPAREN)
                 while True:
                     column = CreateTableColumn()
-                    column.name = self.lexer.token_str
+                    column.name = self.token_str()
                     self.next_token()
 
-                    column.type = self.lexer.token_str
+                    column.type = self.token_str()
                     self.next_token()
 
                     if self.token() == COMMENT:
                         self.next_token()
-                        column.comment = self.lexer.token_str
+                        column.comment = self.token_str()
                     stmt.partition_columns.append(column)
 
                     if self.token() != COMMA:
@@ -98,7 +101,7 @@ class Parser:
 
                 if self.token() == LIFECYCLE:
                     self.next_token()
-                    stmt.lifecycle = self.lexer.token_str
+                    stmt.lifecycle = self.token_str()
         return stmt
 
     def accept(self, token):
@@ -110,4 +113,4 @@ class Parser:
                 actual_token_name = self.lexer.token.name
                 
             raise ParserException("expect " + token.name + ", actual: " + self.lexer.token.name
-                                  + "[" + self.lexer.token_str + "]")
+                                  + "[" + self.token_str() + "]")
