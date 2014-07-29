@@ -8,6 +8,12 @@ class Parser:
     def __init__(self, sql):
         self.lexer = Lexer(sql)
 
+    def token(self):
+        """
+        get the current token
+        """
+        return self.lexer.token
+        
     def next_token(self):
         self.lexer.next_token()
 
@@ -21,7 +27,6 @@ class Parser:
             print "Exception: ", e.msg
             print_exc(e)
 
-            
     def parse_create_table(self):
         self.next_token()
 
@@ -29,16 +34,15 @@ class Parser:
         self.accept(CREATE)
         self.accept(TABLE)
         
-        if self.lexer.token == IF:
+        if self.token() == IF:
             self.accept(NOT)
             self.accept(EXISTS)
             self.ifNotExists = True
 
         stmt.name = self.lexer.token_str
-
         self.next_token()
 
-        if self.lexer.token != LIKE:
+        if self.token() != LIKE:
             self.accept(LPAREN)
             while True:
                 column = CreateTableColumn()
@@ -48,27 +52,27 @@ class Parser:
                 column.type = self.lexer.token_str
                 self.next_token()
 
-                if self.lexer.token == COMMENT:
+                if self.token() == COMMENT:
                     self.accept(COMMENT)
                     column.comment = self.lexer.token_str
                     self.next_token()
 
                 stmt.columns.append(column)
-                if self.lexer.token == COMMA:
+                if self.token() == COMMA:
                     self.accept(COMMA)
                 else:
                     break
 
             self.accept(RPAREN)
             
-            if self.lexer.token == COMMENT:
+            if self.token() == COMMENT:
                 self.next_token()
                 stmt.comment = self.lexer.token_str
                 self.next_token()
 
-            if self.lexer.token == PARTITIONED:
+            if self.token() == PARTITIONED:
                 self.next_token()
-                if self.lexer.token != BY:
+                if self.token() != BY:
                     raise ParserException("PARTITIONED should be followed by BY!")
                 self.next_token()
 
@@ -81,28 +85,28 @@ class Parser:
                     column.type = self.lexer.token_str
                     self.next_token()
 
-                    if self.lexer.token == COMMENT:
+                    if self.token() == COMMENT:
                         self.next_token()
                         column.comment = self.lexer.token_str
                     stmt.partition_columns.append(column)
 
-                    if self.lexer.token != COMMA:
+                    if self.token() != COMMA:
                         break
                     else:
                         self.next_token()
                 self.accept(RPAREN)
 
-                if self.lexer.token == LIFECYCLE:
+                if self.token() == LIFECYCLE:
                     self.next_token()
                     stmt.lifecycle = self.lexer.token_str
         return stmt
 
     def accept(self, token):
-        if self.lexer.token == token:
+        if self.token() == token:
             self.next_token()
         else:
             actual_token_name = None
-            if self.lexer.token != None:
+            if self.token() != None:
                 actual_token_name = self.lexer.token.name
                 
             raise ParserException("expect " + token.name + ", actual: " + self.lexer.token.name
