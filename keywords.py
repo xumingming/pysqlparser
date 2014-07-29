@@ -46,6 +46,7 @@ keywords["ORDER"] = ORDER
 keywords["OUTER"] = OUTER
 keywords["OVERWRITE"] = OVERWRITE
 keywords["PARTITION"] = PARTITION
+keywords["PARTITIONED"] = PARTITIONED
 keywords["RENAME"] = RENAME
 keywords["REPLACE"] = REPLACE
 keywords["RIGHT"] = RIGHT

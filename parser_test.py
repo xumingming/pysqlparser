@@ -16,5 +16,6 @@ class ParserTestCase(unittest.TestCase):
             lexer.next_token()
 
     def test_comment_and_select(self):
-        parser = create_parser("create table xumm (id int, name string)")
-        parser.parse()
+        parser = create_parser("create table xumm (id int, name string) comment 'hello' partitioned by (c1 int, c2 string)")
+        stmt = parser.parse()
+        self.assertEquals(2, len(stmt.partition_columns))
