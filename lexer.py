@@ -228,7 +228,7 @@ class Lexer:
                 if next_char == '-':
                     self.scan_comment()
                 else:
-                    scan_operator()
+                    self.scan_operator()
 
                 return
             elif self.ch == '/':
@@ -238,8 +238,7 @@ class Lexer:
                 return
             else:
                 debug("next_token, in the ELSE branch")
-                if ('a' <= self.ch <= 'z'
-                    or 'A' <= self.ch <= 'Z'):
+                if is_first_identifier_char(self.ch):
                     self.scan_identifier()
                     return
                 if is_operator(self.ch):
