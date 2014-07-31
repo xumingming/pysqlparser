@@ -263,6 +263,28 @@ class Lexer:
     def info(self):
         return "%s %s" % (self.token, self.token_str)
 
+    def surroudings(self):
+        start_idx = self.pos
+        cnt = 20
+        while start_idx >= 0 and cnt > 0:
+            start_idx -= 1
+            cnt -= 1
+
+        end_idx = self.pos
+        cnt = 20
+        while end_idx < len(self.sql) and cnt > 0:
+            end_idx += 1
+            cnt -= 1
+
+        ret = []
+        ret.append(self.sql[start_idx:end_idx])
+        ret.append("\n")
+        for i in range(0, self.pos - start_idx):
+            ret.append(" ")
+        ret.append("^")
+
+        return "".join(ret)
+
     def is_eof(self):
         return self.pos >= len(self.sql)
 

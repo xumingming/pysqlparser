@@ -18,7 +18,7 @@ def format_columns(ret, columns):
 def format(stmt):
     ret = []
     ret.append("CREATE TABLE")
-    if stmt.ifNotExists:
+    if stmt.if_not_exists:
         ret.append(" IF NOT EXISTS")
 
     ret.append(" ")

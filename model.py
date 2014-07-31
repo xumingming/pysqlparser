@@ -2,7 +2,7 @@ class CreateTableStatement:
     def __init__(self):
         self.name = None
         self.columns = []
-        self.ifNotExists = False
+        self.if_not_exists = False
         self.comment = None
         self.partition_columns = []
         self.lifecycle = None

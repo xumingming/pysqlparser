@@ -30,6 +30,31 @@ class Parser:
             print "Exception: ", e.msg
             print_exc(e)
 
+    def parse_column_definition(self):
+        columns = []
+        self.accept(LPAREN)
+        while True:
+            column = CreateTableColumn()
+            column.name = self.token_str()
+            self.next_token()
+
+            column.type = self.token_str()
+            self.next_token()
+
+            if self.token() == COMMENT:
+                self.next_token()
+                column.comment = self.token_str()
+                self.next_token()
+            columns.append(column)
+
+            if self.token() != COMMA:
+                break
+            else:
+                self.next_token()
+        self.accept(RPAREN)
+
+        return columns
+
     def parse_create_table(self):
         self.next_token()
 
@@ -40,33 +65,13 @@ class Parser:
         if self.token() == IF:
             self.accept(NOT)
             self.accept(EXISTS)
-            self.ifNotExists = True
+            stmt.if_not_exists = True
 
         stmt.name = self.token_str()
         self.next_token()
 
         if self.token() != LIKE:
-            self.accept(LPAREN)
-            while True:
-                column = CreateTableColumn()
-                column.name = self.token_str()
-                self.next_token()
-
-                column.type = self.token_str()
-                self.next_token()
-
-                if self.token() == COMMENT:
-                    self.accept(COMMENT)
-                    column.comment = self.token_str()
-                    self.next_token()
-
-                stmt.columns.append(column)
-                if self.token() == COMMA:
-                    self.accept(COMMA)
-                else:
-                    break
-
-            self.accept(RPAREN)
+            stmt.columns = self.parse_column_definition()
             
             if self.token() == COMMENT:
                 self.next_token()
@@ -79,25 +84,7 @@ class Parser:
                     raise ParserException("PARTITIONED should be followed by BY!")
                 self.next_token()
 
-                self.accept(LPAREN)
-                while True:
-                    column = CreateTableColumn()
-                    column.name = self.token_str()
-                    self.next_token()
-
-                    column.type = self.token_str()
-                    self.next_token()
-
-                    if self.token() == COMMENT:
-                        self.next_token()
-                        column.comment = self.token_str()
-                    stmt.partition_columns.append(column)
-
-                    if self.token() != COMMA:
-                        break
-                    else:
-                        self.next_token()
-                self.accept(RPAREN)
+                stmt.partition_columns = self.parse_column_definition()
 
                 if self.token() == LIFECYCLE:
                     self.next_token()
@@ -108,9 +95,15 @@ class Parser:
         if self.token() == token:
             self.next_token()
         else:
-            actual_token_name = None
-            if self.token() != None:
-                actual_token_name = self.lexer.token.name
+            actual_token_name = 'None'
+            actual_token_str = 'None'
+            if not self.token():
+                actual_token_name = self.token()
+                actual_token_str = self.token_str()
                 
-            raise ParserException("expect " + token.name + ", actual: " + self.lexer.token.name
-                                  + "[" + self.token_str() + "]")
+            raise ParserException("expect " + token.name + ", actual: " + actual_token_name
+                                  + "[" + actual_token_str + "], pos: " + str(self.lexer.pos)
+                                  + ", error near: "
+                                  + "\n=====================================================\n"
+                                  + self.lexer.surroudings()
+                                  + "\n=====================================================\n")
