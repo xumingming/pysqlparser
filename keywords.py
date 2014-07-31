@@ -15,6 +15,7 @@ keywords["CAST"] = CAST
 keywords["COLUMN"] = COLUMN
 keywords["COMMENT"] = COMMENT
 keywords["CREATE"] = CREATE
+keywords["DATETIME"] = DATETIME
 keywords["DESC"] = DESC
 keywords["DISTINCT"] = DISTINCT
 keywords["DISTRIBUTE"] = DISTRIBUTE

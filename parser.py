@@ -4,6 +4,7 @@ from exception import ParserException, InvalidCharException
 from model import *
 from traceback import print_exc
 
+
 class Parser:
     def __init__(self, sql):
         self.lexer = Lexer(sql)
@@ -35,21 +36,18 @@ class Parser:
         self.accept(LPAREN)
         while True:
             column = CreateTableColumn()
-            column.name = self.token_str()
-            self.next_token()
+            column.name = self.accept(IDENTIFIER)
+            column.type = self.accept_data_type()
 
-            column.type = self.token_str()
-            self.next_token()
-
-            if self.token() == COMMENT:
-                self.next_token()
+            if self.match(COMMENT):
+                self.accept(COMMENT)
                 column.comment = self.accept(LITERAL_STRING)
             columns.append(column)
 
-            if self.token() != COMMA:
+            if not self.match(COMMA):
                 break
             else:
-                self.next_token()
+                self.accept(COMMA)
         self.accept(RPAREN)
 
         return columns
@@ -66,44 +64,61 @@ class Parser:
             self.accept(EXISTS)
             stmt.if_not_exists = True
 
-        stmt.name = self.token_str()
-        self.next_token()
+        stmt.name = self.accept(IDENTIFIER)
 
-        if self.token() != LIKE:
+        if not self.match(LIKE):
             stmt.columns = self.parse_column_definition()
             
-            if self.token() == COMMENT:
-                self.next_token()
+            if self.match(COMMENT):
+                self.accept(COMMENT)
                 stmt.comment = self.accept(LITERAL_STRING)
 
-            if self.token() == PARTITIONED:
-                self.next_token()
-                if self.token() != BY:
-                    raise ParserException("PARTITIONED should be followed by BY!")
-                self.next_token()
-
+            if self.match(PARTITIONED):
+                self.accept(PARTITIONED)
+                self.accept(BY)
                 stmt.partition_columns = self.parse_column_definition()
 
-                if self.token() == LIFECYCLE:
-                    self.next_token()
-                    stmt.lifecycle = self.token_str()
+                if self.match(LIFECYCLE):
+                    stmt.lifecycle = self.accept(LIFECYCLE)
+
         return stmt
 
-    def accept(self, token):
-        if self.token() == token:
+    def match(self, token):
+        return self.token() == token
+
+    def match_any(self, tokens):
+        for tk in tokens:
+            if self.match(tk):
+                return True
+
+        return False
+
+    def parser_error(self, token):
+        actual_token_name = 'None'
+        actual_token_str = 'None'
+        if self.token():
+            actual_token_name = str(self.token())
+            actual_token_str = self.token_str()
+        raise ParserException("expect " + token.name + ", actual: " + actual_token_name
+                              + "[" + actual_token_str + "], pos: " + str(self.lexer.pos)
+                              + ", error near: "
+                              + "\n=====================================================\n"
+                              + self.lexer.surroudings()
+                              + "\n=====================================================\n")
+
+    def accept_data_type(self):
+        matched = self.match_any([STRING, INT, BIGINT, DATETIME])
+        if matched:
             ret = self.token_str()
             self.next_token()
             return ret
         else:
-            actual_token_name = 'None'
-            actual_token_str = 'None'
-            if self.token():
-                actual_token_name = str(self.token())
-                actual_token_str = self.token_str()
-                
-            raise ParserException("expect " + token.name + ", actual: " + actual_token_name
-                                  + "[" + actual_token_str + "], pos: " + str(self.lexer.pos)
-                                  + ", error near: "
-                                  + "\n=====================================================\n"
-                                  + self.lexer.surroudings()
-                                  + "\n=====================================================\n")
+            self.parse_error([STRING, INT, BIGINT, DATETIME])
+
+    def accept(self, token):
+        if self.match(token):
+            ret = self.token_str()
+            self.next_token()
+            return ret
+        else:
+            self.parser_error(token)
