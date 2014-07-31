@@ -18,7 +18,7 @@ class ParserTestCase(unittest.TestCase):
 
     def test_comment_and_select(self):
         parser = create_parser("""
-        create table xumm (id int comment 'this is a id', name string comment 'this is name', age int comment 'what a fuck comment')
+        create table xumm (id int comment comment, name string comment 'this is name', age int comment 'what a fuck comment')
         comment 'hello table' partitioned by (c1 int, c2 string) lifecycle 1
 
 

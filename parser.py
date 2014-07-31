@@ -43,8 +43,7 @@ class Parser:
 
             if self.token() == COMMENT:
                 self.next_token()
-                column.comment = self.token_str()
-                self.next_token()
+                column.comment = self.accept(LITERAL_STRING)
             columns.append(column)
 
             if self.token() != COMMA:
@@ -75,8 +74,7 @@ class Parser:
             
             if self.token() == COMMENT:
                 self.next_token()
-                stmt.comment = self.token_str()
-                self.next_token()
+                stmt.comment = self.accept(LITERAL_STRING)
 
             if self.token() == PARTITIONED:
                 self.next_token()
@@ -93,12 +91,14 @@ class Parser:
 
     def accept(self, token):
         if self.token() == token:
+            ret = self.token_str()
             self.next_token()
+            return ret
         else:
             actual_token_name = 'None'
             actual_token_str = 'None'
-            if not self.token():
-                actual_token_name = self.token()
+            if self.token():
+                actual_token_name = str(self.token())
                 actual_token_str = self.token_str()
                 
             raise ParserException("expect " + token.name + ", actual: " + actual_token_name
