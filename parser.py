@@ -8,6 +8,7 @@ from traceback import print_exc
 class Parser:
     def __init__(self, sql):
         self.lexer = Lexer(sql)
+        self.next_token()
 
     def token(self):
         """
@@ -53,13 +54,12 @@ class Parser:
         return columns
 
     def parse_create_table(self):
-        self.next_token()
-
         stmt = CreateTableStatement()
         self.accept(CREATE)
         self.accept(TABLE)
         
-        if self.token() == IF:
+        if self.match(IF):
+            self.accept(IF)
             self.accept(NOT)
             self.accept(EXISTS)
             stmt.if_not_exists = True
