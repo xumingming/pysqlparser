@@ -1,7 +1,7 @@
 from lexer import Lexer
 from token import *
 from exception import ParserException, InvalidCharException
-from model import *
+from stmt import *
 from traceback import print_exc
 
 
