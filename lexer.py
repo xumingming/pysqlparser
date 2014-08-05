@@ -138,6 +138,9 @@ class Lexer:
 
         debug("char_at: i:", i, ", None, sql: ", self.sql)
         return ret
+    def unscan(self):
+        self.pos -= 1
+        self.ch = self.sql[self.pos]
 
     def scan_string(self):
         self.scan_char()
@@ -235,6 +238,15 @@ class Lexer:
                 self.scan_char()
                 self.token = SLASH
                 self.token_str = '/'
+                return
+            elif self.ch == '.':
+                self.scan_char()
+                if is_digit(self.ch):
+                    self.unscan()
+                    self.scan_number()
+                else:
+                    self.token = DOT
+                    self.token_str = '.'
                 return
             else:
                 debug("next_token, in the ELSE branch")

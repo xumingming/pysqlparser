@@ -23,3 +23,9 @@ class SelectStatement(Statement):
         Statement.__init__(self, "select")
         self.columns = []
         self.table_name = None
+
+
+class SelectItem:
+    def __init__(self):
+        self.expr = None
+        self.alias = None

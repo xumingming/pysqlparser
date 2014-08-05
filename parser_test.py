@@ -2,6 +2,7 @@ import unittest
 from lexer import Lexer
 from parser import Parser
 from token import *
+from expr import *
 
 def create_parser(sql):
     return Parser(sql)
@@ -15,7 +16,17 @@ class ParserTestCase(unittest.TestCase):
             print lexer.info()
             lexer.next_token()
 
-    def test_comment_and_select(self):
+    def test_create_table(self):
         parser = create_parser("create table xumm (id int, name string) comment 'hello' partitioned by (c1 int, c2 string)")
         stmt = parser.parse()
         self.assertEquals(2, len(stmt.partition_columns))
+
+    def test_select(self):
+        sql = "select xumm.id, name, age from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("select", stmt.type)
+        self.assertEqual(3, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0], PropertyExpr))
+        self.assertEqual("xumm", stmt.columns[0].owner.name)
+        self.assertEqual("id", stmt.columns[0].name)

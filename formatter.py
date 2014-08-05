@@ -33,7 +33,7 @@ class Formatter:
         elif self.type == 'select':
             self.format_select()
 
-        return "".join(self.buf)
+        return "".join([str(x) for x in self.buf])
 
     def format_select(self):
         self.append("SELECT ")

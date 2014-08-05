@@ -2,7 +2,9 @@ from lexer import Lexer
 from token import *
 from exception import ParserException, InvalidCharException
 from stmt import *
+from expr import *
 from traceback import print_exc
+from keywords import is_keyword
 
 
 class Parser:
@@ -41,8 +43,8 @@ class Parser:
 
         stmt = SelectStatement()
         while not self.match(FROM):
-            column_name = self.accept(IDENTIFIER)
-            stmt.columns.append(column_name)
+            column = self.expr()
+            stmt.columns.append(column)
             if self.match(COMMA):
                 self.accept(COMMA)
             else:
@@ -54,8 +56,58 @@ class Parser:
         return stmt
 
     def expr(self):
-        pass
-        #if self.token() == IDENTIFIER:
+        if self.token() == STAR:
+            return AllColumnExpr()
+
+        ret = self.primary()
+
+        if self.token() == COMMA:
+            return ret
+
+        return self.expr_rest(ret)
+
+    def expr_rest(self, expr):
+        return expr
+
+    def primary(self):
+        ret = None
+        tok = self.token()
+        if tok == IDENTIFIER:
+            ret = IdentifierExpr(self.token_str())
+            self.next_token()
+
+        return self.primary_rest(ret)
+
+    def primary_rest(self, expr):
+        if not expr:
+            raise ParserException("expr is None!")
+
+        if self.token() == DOT:
+            self.accept(DOT)
+            expr = self.dot_rest(expr)
+            return self.primary_rest(expr)
+        return expr
+
+    def dot_rest(self, expr):
+        if self.token() == STAR:
+            self.accept(STAR)
+            expr = PropertyExpr(expr, "*")
+        else:
+            name = None
+
+            if (self.token() == IDENTIFIER
+                or self.token() == LITERAL_STRING):
+                name = self.token_str()
+                self.next_token()
+            elif is_keyword(self.token()):
+                name = self.token_str()
+                self.next_token()
+            else:
+                raise ParserException("error: " + self.token_str())
+
+            expr = PropertyExpr(expr, name)
+
+        return expr
 
     def parse_column_definition(self):
         columns = []

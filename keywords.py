@@ -69,3 +69,5 @@ def get_keyword(keyword):
     """
     return keywords.get(keyword)
     
+def is_keyword(keyword):
+    return get_keyword(keyword)
