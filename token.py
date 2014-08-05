@@ -93,6 +93,7 @@ RBRACKET = Token("]")
 LBRACE = Token("{")
 RBRACE = Token("}")
 DOT = Token(".")
+PERCENT = Token("%")
 
 
 

@@ -3,6 +3,7 @@ from token import *
 from exception import ParserException, InvalidCharException
 from stmt import *
 from expr import *
+from op import *
 from traceback import print_exc
 from keywords import is_keyword
 
@@ -84,7 +85,23 @@ class Parser:
         return self.multiplicative_rest(expr)
 
     def multiplicative_rest(self, expr):
-        pass
+        if self.token() == STAR:
+            self.next_token()
+            right_expr = self.primary()
+            expr = BinaryOpExpr(expr, Multiply, right_expr)
+            expr = self.multiplicative_rest(expr)
+        elif self.token() == SLASH:
+            self.next_token()
+            right_expr = self.primary()
+            expr = BinaryOpExpr(expr, Divide, right_expr)
+            expr = self.multiplicative_rest(expr)
+        elif self.token() == PERCENT:
+            self.next_token()
+            right_expr = self.primary()
+            expr = BinaryOpExpr(expr, Modulus, right_expr)
+            expr = self.multiplicative_rest(expr)
+
+        return expr
 
     def additive(self):
         expr = self.multiplicative()
@@ -139,13 +156,19 @@ class Parser:
         pass
 
     def primary(self):
-        ret = None
+        expr = None
         tok = self.token()
         if tok == IDENTIFIER:
-            ret = IdentifierExpr(self.token_str())
+            expr = IdentifierExpr(self.token_str())
+            self.next_token()
+        elif tok == LITERAL_INT:
+            expr = NumberExpr(int(self.token_str()))
+            self.next_token()
+        elif tok == LITERAL_FLOAT:
+            expr = NumberExpr(float(self.token_str()))
             self.next_token()
 
-        return self.primary_rest(ret)
+        return self.primary_rest(expr)
 
     def primary_rest(self, expr):
         if not expr:

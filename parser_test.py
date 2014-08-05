@@ -35,8 +35,11 @@ class ParserTestCase(unittest.TestCase):
         sql = "select 1 from xumm"
         parser = create_parser(sql)
         stmt = parser.parse()
+        #self.helper(sql)
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0], NumberExpr))
+        self.assertEqual(1, stmt.columns[0].number)
 
     def test_multiplicative_operator(self):
         sql = "select 1 * 2 from xumm"
