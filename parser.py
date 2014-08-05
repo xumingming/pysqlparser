@@ -67,7 +67,76 @@ class Parser:
         return self.expr_rest(ret)
 
     def expr_rest(self, expr):
+        expr = self.multiplicative_rest(expr)
+        #expr = self.additive_rest(expr)
+        #expr = self.bit_and_rest(expr)
+        #expr = self.bit_or_rest(expr)
+        #expr = self.in_rest(expr)
+        #expr = self.relational_rest(expr)
+        #expr = self.equality_rest(expr)
+        #expr = self.and1_rest(expr)
+        #expr = self.or1_rest(expr)
+
         return expr
+
+    def multiplicative(self):
+        expr = self.primary()
+        return self.multiplicative_rest(expr)
+
+    def multiplicative_rest(self, expr):
+        pass
+
+    def additive(self):
+        expr = self.multiplicative()
+        return self.additive_rest(expr)
+
+    def additive_rest(self, expr):
+        pass
+
+    def bit_and(self):
+        expr = self.additive()
+        return self.bit_and_rest(expr)
+
+    def bit_and_rest(self, expr):
+        pass
+
+    def bit_or(self):
+        expr = self.bit_and()
+        return self.bit_or_rest(expr)
+
+    def bit_or_rest(self, expr):
+        pass
+
+    def in_rest(self, expr):
+        pass
+
+    def equality(self):
+        expr = self.bit_or()
+        return self.equaility_rest(expr)
+
+    def equality_rest(self, expr):
+        pass
+
+    def relational(self):
+        expr = self.equaility()
+        return self.relational_rest(expr)
+
+    def relational_rest(self, expr):
+        pass
+
+    def and1(self):
+        expr = self.relational()
+        return self.and1_rest(expr)
+
+    def and1_rest(self, expr):
+        pass
+
+    def or1(self):
+        expr = self.and1()
+        return self.or1_rest(expr)
+
+    def or1_rest(self, expr):
+        pass
 
     def primary(self):
         ret = None

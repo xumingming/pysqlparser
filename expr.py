@@ -25,3 +25,9 @@ class PropertyExpr(Expr):
 
     def __str__(self):
         return str(self.owner) + "." + self.name
+
+class BinaryOpExpr(Expr):
+    def __init__(self):
+        self.left = None
+        self.right = None
+        self.operator = None
