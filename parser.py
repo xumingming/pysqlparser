@@ -69,7 +69,7 @@ class Parser:
 
     def expr_rest(self, expr):
         expr = self.multiplicative_rest(expr)
-        #expr = self.additive_rest(expr)
+        expr = self.additive_rest(expr)
         #expr = self.bit_and_rest(expr)
         #expr = self.bit_or_rest(expr)
         #expr = self.in_rest(expr)
@@ -108,7 +108,18 @@ class Parser:
         return self.additive_rest(expr)
 
     def additive_rest(self, expr):
-        pass
+        if self.token() == PLUS:
+            self.next_token()
+            right_expr = self.multiplicative()
+            expr = BinaryOpExpr(expr, Add, right_expr)
+            expr = self.additive_rest(expr)
+        elif self.token() == MINUS:
+            self.next_token()
+            right_expr = self.multiplicative()
+            expr = BinaryOpExpr(expr, Subtract, right_expr)
+            expr = self.additive_rest(expr)
+
+        return expr
 
     def bit_and(self):
         expr = self.additive()

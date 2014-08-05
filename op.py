@@ -5,3 +5,5 @@ class Operator:
 Multiply = Operator("*")
 Divide = Operator("/")
 Modulus = Operator("%")
+Add = Operator("+")
+Subtract = Operator("-")
