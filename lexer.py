@@ -80,7 +80,11 @@ class Lexer:
         elif self.ch == '/':
             self.scan_char()
             self.token = SLASH
-            self.token_str = '/'            
+            self.token_str = '/'
+        elif self.ch == '%':
+            self.scan_char()
+            self.token = PERCENT
+            self.token_str = '%'
         elif self.ch == '=':
             self.scan_char()
             self.token = EQ
@@ -226,6 +230,11 @@ class Lexer:
                 self.scan_char()
                 self.token = PLUS
                 self.token_str = '+'
+                return
+            elif self.ch == '%':
+                self.scan_char()
+                self.token = PERCENT
+                self.token_str = '%'
                 return
             elif self.ch == '-':
                 next_char = self.char_at(self.pos + 1)

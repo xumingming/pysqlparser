@@ -35,7 +35,7 @@ class NumberExpr(Expr):
         self.number = number
 
 class BinaryOpExpr(Expr):
-    def __init__(self):
-        self.left = None
-        self.right = None
-        self.operator = None
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right

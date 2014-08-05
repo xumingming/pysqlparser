@@ -40,7 +40,7 @@ def is_operator(ch):
     """
     return (ch == '*' or ch == '+' or ch == '-'
             or ch == '/' or ch == '<' or ch == '>'
-            or ch == '=')
+            or ch == '=' or ch == '%')
     
 def debug(*args):
     """
