@@ -16,13 +16,16 @@ class ParserTestCase(unittest.TestCase):
             print lexer.info()
             lexer.next_token()
 
-    def test_comment_and_select(self):
+    def test_create(self):
         parser = create_parser("""
         create table if not exists xumm (id int comment 'test', name string comment 'this is name', age int comment 'what a fuck comment')
-        comment 'hello table' partitioned by (c1 int, c2 string) lifecycle 1
+        comment 'hello table' partitioned by (c1 int, c2 string) lifecycle 1""")
+        stmt = parser.parse()
+        format(stmt)
 
-
-""")
+    def test_select(self):
+        parser = create_parser("""
+        select id, name, age from xumm""")
         stmt = parser.parse()
         format(stmt)
         

@@ -24,13 +24,34 @@ class Parser:
 
     def parse(self):
         try:
-            return self.parse_create_table()
+            if self.match(SELECT):
+                return self.parse_select()
+            elif self.match(CREATE):
+                return self.parse_create_table()
+
         except ParserException,e:
             print "Exception: ", e.msg
             print_exc(e)
         except InvalidCharException,e:
             print "Exception: ", e.msg
             print_exc(e)
+
+    def parse_select(self):
+        self.accept(SELECT)
+
+        stmt = SelectStatement()
+        while not self.match(FROM):
+            column_name = self.accept(IDENTIFIER)
+            stmt.columns.append(column_name)
+            if self.match(COMMA):
+                self.accept(COMMA)
+            else:
+                break
+        self.accept(FROM)
+
+        stmt.table_name = self.accept(IDENTIFIER)
+
+        return stmt
 
     def parse_column_definition(self):
         columns = []

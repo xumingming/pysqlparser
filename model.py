@@ -1,5 +1,10 @@
-class CreateTableStatement:
+class Statement:
+    def __init__(self, type):
+        self.type = type
+
+class CreateTableStatement(Statement):
     def __init__(self):
+        Statement.__init__(self, "create")
         self.name = None
         self.columns = []
         self.if_not_exists = False
@@ -12,3 +17,9 @@ class CreateTableColumn:
         self.name = None
         self.type = None
         self.comment = None
+
+class SelectStatement(Statement):
+    def __init__(self):
+        Statement.__init__(self, "select")
+        self.columns = []
+        self.table_name = None
