@@ -65,9 +65,7 @@ class Formatter:
         self.append(self.stmt.name)
         self.append(" ")
 
-        self.append("(")
         self.format_columns(self.stmt.columns)
-        self.append(")")
 
         if self.stmt.comment:
             self.append(" COMMENT '")
@@ -76,9 +74,8 @@ class Formatter:
 
         if self.stmt.partition_columns and len(self.stmt.partition_columns) > 0:
             self.println()
-            self.append("PARTITIONED BY (")
+            self.append("PARTITIONED BY ")
             self.format_columns(self.stmt.partition_columns)
-            self.append(")")
 
         if self.stmt.lifecycle:
             self.println()
@@ -87,6 +84,7 @@ class Formatter:
 
     def format_columns(self, columns):
         cnt = 0
+        self.append("(")
         self.increment_indent_cnt()
         for column in columns:
             self.println()
@@ -106,4 +104,5 @@ class Formatter:
             cnt += 1
 
         self.println()
+        self.append(")")
 

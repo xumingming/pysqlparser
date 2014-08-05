@@ -53,6 +53,10 @@ class Parser:
 
         return stmt
 
+    def expr(self):
+        pass
+        #if self.token() == IDENTIFIER:
+
     def parse_column_definition(self):
         columns = []
         self.accept(LPAREN)

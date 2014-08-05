@@ -32,7 +32,7 @@ class ParserTestCase(unittest.TestCase):
         # format(stmt)
 
         formatter = Formatter("""
-        select id, name, age from xumm""")
+        select id, name, age from db.xumm""")
 
         print formatter.format()
 
