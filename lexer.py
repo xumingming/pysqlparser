@@ -18,6 +18,7 @@ class Lexer:
 
     def scan_number(self):
         self.mark = self.pos
+        self.buf_pos = 0
         is_float = False
         while is_digit(self.ch):
             self.buf_pos += 1
