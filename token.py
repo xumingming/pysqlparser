@@ -94,6 +94,8 @@ LBRACE = Token("{")
 RBRACE = Token("}")
 DOT = Token(".")
 PERCENT = Token("%")
+AMP = Token("&")
+BAR = Token("|")
 
 
 

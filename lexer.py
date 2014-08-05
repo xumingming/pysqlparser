@@ -85,6 +85,14 @@ class Lexer:
             self.scan_char()
             self.token = PERCENT
             self.token_str = '%'
+        elif self.ch == '&':
+            self.scan_char()
+            self.token = AMP
+            self.token_str = '&'
+        elif self.ch == '|':
+            self.scan_char()
+            self.token = BAR
+            self.token_str = '|'
         elif self.ch == '=':
             self.scan_char()
             self.token = EQ

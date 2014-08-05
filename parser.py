@@ -70,8 +70,8 @@ class Parser:
     def expr_rest(self, expr):
         expr = self.multiplicative_rest(expr)
         expr = self.additive_rest(expr)
-        #expr = self.bit_and_rest(expr)
-        #expr = self.bit_or_rest(expr)
+        expr = self.bit_and_rest(expr)
+        expr = self.bit_or_rest(expr)
         #expr = self.in_rest(expr)
         #expr = self.relational_rest(expr)
         #expr = self.equality_rest(expr)
@@ -126,14 +126,24 @@ class Parser:
         return self.bit_and_rest(expr)
 
     def bit_and_rest(self, expr):
-        pass
+        while self.token() == AMP:
+            self.next_token()
+            right_expr = self.additive()
+            expr = BinaryOpExpr(expr, BitwiseAnd, right_expr)
+
+        return expr
 
     def bit_or(self):
         expr = self.bit_and()
         return self.bit_or_rest(expr)
 
     def bit_or_rest(self, expr):
-        pass
+        while self.token() == BAR:
+            self.next_token()
+            right_expr = self.bit_and()
+            expr = BinaryOpExpr(expr, BitwiseOr, right_expr)
+
+        return expr
 
     def in_rest(self, expr):
         pass

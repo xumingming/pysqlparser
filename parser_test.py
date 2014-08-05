@@ -81,3 +81,39 @@ class ParserTestCase(unittest.TestCase):
         self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
         self.assertEqual(1, stmt.columns[0].left.left.number)
         self.assertEqual(2, stmt.columns[0].left.right.number)
+
+    def test_bit_and_operator(self):
+        sql = "select 1 & 2 & 3 from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("select", stmt.type)
+        self.assertEqual(1, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0], BinaryOpExpr))
+        self.assertTrue(isinstance(stmt.columns[0].left, BinaryOpExpr))
+        self.assertEqual(BitwiseAnd, stmt.columns[0].operator)
+        self.assertTrue(isinstance(stmt.columns[0].right, NumberExpr))
+        self.assertEqual(3, stmt.columns[0].right.number)
+
+        self.assertTrue(isinstance(stmt.columns[0].left.left, NumberExpr))
+        self.assertEqual(BitwiseAnd, stmt.columns[0].left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].left.left.number)
+        self.assertEqual(2, stmt.columns[0].left.right.number)
+
+    def test_bit_or_operator(self):
+        sql = "select 1 | 2 | 3 from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("select", stmt.type)
+        self.assertEqual(1, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0], BinaryOpExpr))
+        self.assertTrue(isinstance(stmt.columns[0].left, BinaryOpExpr))
+        self.assertEqual(BitwiseOr, stmt.columns[0].operator)
+        self.assertTrue(isinstance(stmt.columns[0].right, NumberExpr))
+        self.assertEqual(3, stmt.columns[0].right.number)
+
+        self.assertTrue(isinstance(stmt.columns[0].left.left, NumberExpr))
+        self.assertEqual(BitwiseOr, stmt.columns[0].left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].left.left.number)
+        self.assertEqual(2, stmt.columns[0].left.right.number)
