@@ -1,72 +1,109 @@
-def format_columns(ret, columns):
-    cnt = 0
-    for column in columns:
-        ret.append("\t")
-        ret.append(column.name)
-        ret.append(" ")
-        ret.append(column.type)
-        if column.comment != None:
-            ret.append(" COMMENT '")
-            ret.append(column.comment)
-            ret.append("'")
+from parser import Parser
 
-        if cnt < len(columns) - 1:
-            ret.append(",")
-        ret.append("\n")
-        cnt += 1
 
-def format_create(stmt):
-    ret = []
-    ret.append("CREATE TABLE")
-    if stmt.if_not_exists:
-        ret.append(" IF NOT EXISTS")
+class Formatter:
+    def __init__(self, sql):
+        self.sql = sql
+        self.stmt = Parser(sql).parse()
+        self.type = self.stmt.type
+        self.buf = []
+        self.indent_cnt = 0
 
-    ret.append(" ")
-    ret.append(stmt.name)
-    ret.append(" ")
+    def println(self):
+        self.buf.append("\n")
+        for i in range(0, self.indent_cnt):
+            self.buf.append("    ")
 
-    ret.append("(\n")
-    format_columns(ret, stmt.columns)
-    ret.append(")")
+    def increment_indent_cnt(self):
+        self.indent_cnt += 1
 
-    if stmt.comment:
-        ret.append(" COMMENT '")
-        ret.append(stmt.comment)
-        ret.append("'")
+    def decrement_indent_cnt(self):
+        self.indent_cnt -= 1
 
-    if stmt.partition_columns and len(stmt.partition_columns) > 0:
-        ret.append("\n  PARTITIONED BY (\n")
-        format_columns(ret, stmt.partition_columns)
-        ret.append(")")
+    def append(self, obj):
+        self.buf.append(obj)
+        return self
 
-    if stmt.lifecycle != None:
-        ret.append("\n LIFECYCLE ")
-        ret.append(stmt.lifecycle)
-    print "".join(ret)
+    def format_create(self):
+        pass
 
-def format_select(stmt):
-    ret = []
-    ret.append("SELECT ")
-    idx = 0
-    for column in stmt.columns:
-        if idx > 0:
-            ret.append("        ")
-        ret.append(column)
-        if idx < len(stmt.columns) - 1:
-            ret.append(",")
+    def format(self):
+        if self.type == 'create':
+            self.format_create()
+        elif self.type == 'select':
+            self.format_select()
 
-        ret.append("\n")
-        idx += 1
+        return "".join(self.buf)
 
-    ret.append("FROM ")
-    ret.append(stmt.table_name)
+    def format_select(self):
+        self.append("SELECT ")
 
-    print "".join(ret)
+        self.increment_indent_cnt()
+        idx = 0
+        for column in self.stmt.columns:
+            self.append(column)
+            if idx < len(self.stmt.columns) - 1:
+                self.append(",")
 
-def format(stmt):
-    if stmt.type == 'create':
-        format_create(stmt)
-    elif stmt.type == 'select':
-        format_select(stmt)
+            if idx >= len(self.stmt.columns) - 1:
+                self.decrement_indent_cnt()
 
+            if idx >= 0:
+                self.println()
+
+            idx += 1
+
+        self.append("FROM ")
+        self.append(self.stmt.table_name)
+
+    def format_create(self):
+        self.append("CREATE TABLE")
+        if self.stmt.if_not_exists:
+            self.append(" IF NOT EXISTS")
+
+        self.append(" ")
+        self.append(self.stmt.name)
+        self.append(" ")
+
+        self.append("(")
+        self.format_columns(self.stmt.columns)
+        self.append(")")
+
+        if self.stmt.comment:
+            self.append(" COMMENT '")
+            self.append(self.stmt.comment)
+            self.append("'")
+
+        if self.stmt.partition_columns and len(self.stmt.partition_columns) > 0:
+            self.println()
+            self.append("PARTITIONED BY (")
+            self.format_columns(self.stmt.partition_columns)
+            self.append(")")
+
+        if self.stmt.lifecycle:
+            self.println()
+            self.append("LIFECYCLE ")
+            self.append(self.stmt.lifecycle)
+
+    def format_columns(self, columns):
+        cnt = 0
+        self.increment_indent_cnt()
+        for column in columns:
+            self.println()
+            self.append(column.name)
+            self.append(" ")
+            self.append(column.type)
+            if column.comment:
+                self.append(" COMMENT '")
+                self.append(column.comment)
+                self.append("'")
+
+            if cnt < len(columns) - 1:
+                self.append(",")
+
+            if cnt == len(columns) - 1:
+                self.decrement_indent_cnt()
+            cnt += 1
+
+        self.println()
 

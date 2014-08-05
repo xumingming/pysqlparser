@@ -100,7 +100,8 @@ class Parser:
                 stmt.partition_columns = self.parse_column_definition()
 
                 if self.match(LIFECYCLE):
-                    stmt.lifecycle = self.accept(LIFECYCLE)
+                    self.accept(LIFECYCLE)
+                    stmt.lifecycle = self.accept(LITERAL_INT)
 
         return stmt
 
