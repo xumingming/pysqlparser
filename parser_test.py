@@ -220,7 +220,28 @@ class ParserTestCase(unittest.TestCase):
 
     def test_equality(self):
         sql = "select id from xumm where id = 1"
-        self.helper(sql)
         parser = create_parser(sql)
         stmt = parser.parse()
         self.assertEqual("=", stmt.where.operator.name)
+
+    def test_and_or_rest(self):
+        sql = "select id from xumm where age < 1 and name > 2 and id = 3"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.where, BinaryOpExpr))
+
+        self.assertTrue(isinstance(stmt.where.right, BinaryOpExpr))
+        self.assertEqual("id", stmt.where.right.left.name)
+        self.assertEqual("=", stmt.where.right.operator.name)
+        self.assertEqual(3, stmt.where.right.right.number)
+
+        self.assertTrue(isinstance(stmt.where.left.right, BinaryOpExpr))
+        self.assertEqual("name", stmt.where.left.right.left.name)
+        self.assertEqual(">", stmt.where.left.right.operator.name)
+        self.assertEqual(2, stmt.where.left.right.right.number)
+
+        self.assertTrue(isinstance(stmt.where.left.left.right, NumberExpr))
+        self.assertEqual("age", stmt.where.left.left.left.name)
+        self.assertEqual("<", stmt.where.left.left.operator.name)
+        self.assertEqual(1, stmt.where.left.left.right.number)
+

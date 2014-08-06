@@ -79,8 +79,8 @@ class Parser:
         expr = self.in_rest(expr)
         expr = self.relational_rest(expr)
         expr = self.equality_rest(expr)
-        #expr = self.and1_rest(expr)
-        #expr = self.or1_rest(expr)
+        expr = self.and1_rest(expr)
+        expr = self.or1_rest(expr)
 
         return expr
 
@@ -199,7 +199,7 @@ class Parser:
         return expr
 
     def relational(self):
-        expr = self.equaility()
+        expr = self.equality()
         return self.relational_rest(expr)
 
     def relational_rest(self, expr):
@@ -304,14 +304,23 @@ class Parser:
         return self.and1_rest(expr)
 
     def and1_rest(self, expr):
-        pass
+        while self.match(AND):
+            self.accept(AND)
+            right_expr = self.relational()
+            expr = BinaryOpExpr(expr, BooleanAnd, right_expr)
+        return expr
 
     def or1(self):
         expr = self.and1()
         return self.or1_rest(expr)
 
     def or1_rest(self, expr):
-        pass
+        while self.match(OR):
+            self.accept(OR)
+            right_expr = self.relational()
+            expr = BinaryOpExpr(expr, BooleanOr, right_expr)
+
+        return expr
 
     def primary(self):
         expr = None
