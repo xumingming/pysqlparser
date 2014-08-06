@@ -48,8 +48,9 @@ class InListExpr(Expr):
 
 
 class QueryExpr(Expr):
-    def __init__(self):
-        self.sub_query = None
+    def __init__(self, sub_query):
+        self.sub_query = sub_query
+        sub_query.parent = self
 
 class InSubQueryExpr(Expr):
     def __init__(self):

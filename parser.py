@@ -225,7 +225,8 @@ class Parser:
         elif tok == LITERAL_FLOAT:
             expr = NumberExpr(float(self.token_str()))
             self.next_token()
-
+        elif tok == SELECT:
+            expr = QueryExpr(self.parse_select())
         return self.primary_rest(expr)
 
     def primary_rest(self, expr):

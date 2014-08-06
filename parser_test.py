@@ -134,3 +134,16 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(2, stmt.where.target_list[1].number)
         self.assertTrue(isinstance(stmt.where.target_list[2], NumberExpr))
         self.assertEqual(3, stmt.where.target_list[2].number)
+
+        sql = "select id, name, age from xumm where id in (select id from test)"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.where, InSubQueryExpr))
+        self.assertFalse(stmt.where.not1)
+        self.assertTrue(isinstance(stmt.where.expr, IdentifierExpr))
+        self.assertEqual("id", stmt.where.expr.name)
+
+        sub_query = stmt.where.sub_query
+        self.assertEqual(1, len(sub_query.columns))
+        self.assertEqual("id", sub_query.columns[0].name)
+        self.assertEqual("test", sub_query.table_name)
