@@ -75,3 +75,19 @@ class StringExpr(Expr):
 class NullExpr(Expr):
     def __init__(self):
         pass
+
+class OrderingSpec:
+    def __init__(self, name):
+        self.name = name
+
+ORDER_BY_ASC = OrderingSpec("ASC")
+ORDER_BY_DESC = OrderingSpec("DESC")
+
+class SelectOrderByItem:
+    def __init__(self):
+        self.expr = None
+        self.type = ORDER_BY_ASC
+
+class SelectOrderBy:
+    def __init__(self):
+        self.items = []

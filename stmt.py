@@ -24,6 +24,7 @@ class SelectStatement(Statement):
         self.columns = []
         self.table_name = None
         self.where = None
+        self.order_by = None
 
 
 class SelectItem:

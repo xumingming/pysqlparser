@@ -387,6 +387,35 @@ class ExprParser(BaseParser):
 
         return expr
 
+    def parse_order_by(self):
+        if self.match(ORDER):
+            self.accept(ORDER)
+            self.accept(BY)
+
+            order_by = SelectOrderBy()
+            order_by.items.append(self.parse_order_by_item())
+
+            while self.match(COMMA):
+                self.accept(COMMA)
+                order_by.items.append(self.parse_order_by_item())
+
+            return order_by
+
+        return None
+
+    def parse_order_by_item(self):
+        item = SelectOrderByItem()
+        item.expr = self.expr()
+
+        if self.match(ASC):
+            item.type = ORDER_BY_ASC
+            self.accept(ASC)
+        elif self.match(DESC):
+            item.type = ORDER_BY_DESC
+            self.accept(DESC)
+
+        return item
+
 
 class Parser(BaseParser):
     def __init__(self, sql_or_lexer):
@@ -401,6 +430,9 @@ class Parser(BaseParser):
 
     def expr(self):
         return self.expr_parser.expr()
+
+    def parse_order_by(self):
+        return self.expr_parser.parse_order_by()
 
     def parse(self):
         try:
@@ -434,6 +466,9 @@ class Parser(BaseParser):
         if self.match(WHERE):
             self.accept(WHERE)
             stmt.where = self.expr()
+
+        if self.match(ORDER):
+            stmt.order_by = self.parse_order_by()
 
         return stmt
 

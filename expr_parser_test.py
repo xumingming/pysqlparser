@@ -221,3 +221,16 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual("<", stmt.where.left.left.operator.name)
         self.assertEqual(1, stmt.where.left.left.right.number)
 
+    def test_parse_order_by(self):
+        sql = "select id from xumm order by id desc, name asc, age"
+        parser = create_parser(sql)
+        self.helper(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.order_by, SelectOrderBy))
+        self.assertEqual(3, len(stmt.order_by.items))
+        self.assertEqual("id", stmt.order_by.items[0].expr.name)
+        self.assertEqual(ORDER_BY_DESC, stmt.order_by.items[0].type)
+        self.assertEqual("name", stmt.order_by.items[1].expr.name)
+        self.assertEqual(ORDER_BY_ASC, stmt.order_by.items[1].type)
+        self.assertEqual("age", stmt.order_by.items[2].expr.name)
+        self.assertEqual(ORDER_BY_ASC, stmt.order_by.items[2].type)
