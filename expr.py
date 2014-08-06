@@ -1,6 +1,6 @@
 class Expr:
     def __init__(self):
-        pass
+        self.parent = None
 
 
 class AllColumnExpr(Expr):
@@ -39,3 +39,20 @@ class BinaryOpExpr(Expr):
         self.left = left
         self.operator = operator
         self.right = right
+
+class InListExpr(Expr):
+    def __init__(self):
+        self.expr = None
+        self.not1 = False
+        self.target_list = []
+
+
+class QueryExpr(Expr):
+    def __init__(self):
+        self.sub_query = None
+
+class InSubQueryExpr(Expr):
+    def __init__(self):
+        self.not1 = False
+        self.expr = None
+        self.sub_query = None

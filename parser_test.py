@@ -117,3 +117,20 @@ class ParserTestCase(unittest.TestCase):
         self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
         self.assertEqual(1, stmt.columns[0].left.left.number)
         self.assertEqual(2, stmt.columns[0].left.right.number)
+
+    def test_in_rest(self):
+        sql = "select id from xumm where id in (1, 2, 3)"
+
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("select", stmt.type)
+        self.assertTrue(isinstance(stmt.where, InListExpr))
+        self.assertTrue(isinstance(stmt.where.expr, IdentifierExpr))
+        self.assertEqual("id", stmt.where.expr.name)
+        self.assertEqual(3, len(stmt.where.target_list))
+        self.assertTrue(isinstance(stmt.where.target_list[0], NumberExpr))
+        self.assertEqual(1, stmt.where.target_list[0].number)
+        self.assertTrue(isinstance(stmt.where.target_list[1], NumberExpr))
+        self.assertEqual(2, stmt.where.target_list[1].number)
+        self.assertTrue(isinstance(stmt.where.target_list[2], NumberExpr))
+        self.assertEqual(3, stmt.where.target_list[2].number)

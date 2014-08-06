@@ -47,6 +47,14 @@ class LexerTestCase(unittest.TestCase):
         lexer.next_token()
         self.assertEquals(EOF, lexer.token)
 
+        # normal integer end with comma
+        lexer = create_lexer("99,")
+        lexer.next_token()
+        self.assertEquals(LITERAL_INT, lexer.token)
+        self.assertEquals("99", lexer.token_str)
+        lexer.next_token()
+        self.assertEquals(COMMA, lexer.token)
+
         # another integer
         lexer = create_lexer("00009")
         lexer.next_token()

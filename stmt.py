@@ -23,6 +23,7 @@ class SelectStatement(Statement):
         Statement.__init__(self, "select")
         self.columns = []
         self.table_name = None
+        self.where = None
 
 
 class SelectItem:

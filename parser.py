@@ -54,25 +54,29 @@ class Parser:
 
         stmt.table_name = self.accept(IDENTIFIER)
 
+        if self.match(WHERE):
+            self.accept(WHERE)
+            stmt.where = self.expr()
+
         return stmt
 
     def expr(self):
         if self.token() == STAR:
             return AllColumnExpr()
 
-        ret = self.primary()
+        expr = self.primary()
 
         if self.token() == COMMA:
-            return ret
+            return expr
 
-        return self.expr_rest(ret)
+        return self.expr_rest(expr)
 
     def expr_rest(self, expr):
         expr = self.multiplicative_rest(expr)
         expr = self.additive_rest(expr)
         expr = self.bit_and_rest(expr)
         expr = self.bit_or_rest(expr)
-        #expr = self.in_rest(expr)
+        expr = self.in_rest(expr)
         #expr = self.relational_rest(expr)
         #expr = self.equality_rest(expr)
         #expr = self.and1_rest(expr)
@@ -146,7 +150,40 @@ class Parser:
         return expr
 
     def in_rest(self, expr):
-        pass
+        if self.token() == IN:
+            self.accept(IN)
+            self.accept(LPAREN)
+
+            in_list_expr = InListExpr()
+            in_list_expr.expr = expr
+            self.expr_list(in_list_expr.target_list)
+            expr = in_list_expr
+            self.accept(RPAREN)
+
+            if len(in_list_expr.target_list) == 1:
+                target_expr = in_list_expr.target_list[0]
+
+                if isinstance(target_expr, QueryExpr):
+                    in_sub_query_expr = InSubQueryExpr()
+                    in_sub_query_expr.expr = in_list_expr.expr
+                    in_sub_query_expr.sub_query = target_expr.sub_query
+                    expr = in_sub_query_expr
+        return expr
+
+    def expr_list(self, target_list, parent = None):
+        if (self.token() == RPAREN or self.token() == RBRACKET
+            or self.token() == EOF):
+            return
+
+        expr = self.expr()
+        expr.parent = parent
+        target_list.append(expr)
+
+        while self.token() == COMMA:
+            self.next_token()
+            expr = self.expr()
+            expr.parent = parent
+            target_list.append(expr)
 
     def equality(self):
         expr = self.bit_or()

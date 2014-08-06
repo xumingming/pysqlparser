@@ -33,7 +33,7 @@ class Lexer:
                 self.buf_pos += 1
                 self.scan_char()
             
-        if not is_whitespace(self.ch) and self.ch and self.ch != ',':
+        if (not is_whitespace(self.ch) and self.ch and self.ch != ',' and self.ch != ')'):
             raise InvalidCharException("scan_number: invalid char: " + str(self.ch))
 
         if is_float:
