@@ -27,19 +27,22 @@ class Lexer:
         if self.ch == '.' and is_digit(self.char_at(self.pos + 1)):
             is_float = True
             self.scan_char()
-            
+            self.buf_pos += 1
+
             while is_digit(self.ch):
                 self.buf_pos += 1
                 self.scan_char()
             
-        if not is_whitespace(self.ch) and self.ch != None:
+        if not is_whitespace(self.ch) and self.ch and self.ch != ',':
             raise InvalidCharException("scan_number: invalid char: " + str(self.ch))
 
         if is_float:
             self.token = LITERAL_FLOAT
         else:
             self.token = LITERAL_INT
-        self.token_str = self.sql[self.mark:self.mark + self.buf_pos + 1]
+
+        self.token_str = self.sql[self.mark:self.mark + self.buf_pos]
+
         debug("scanning number: ", self.token_str)
 
 
