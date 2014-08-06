@@ -28,6 +28,7 @@ keywords["FALSE"] = FALSE
 keywords["FROM"] = FROM
 keywords["FULL"] = FULL
 keywords["GROUP"] = GROUP
+keywords["HAVING"] = HAVING
 keywords["IF"] = IF
 keywords["IN"] = IN
 keywords["INT"] = INT

@@ -416,6 +416,29 @@ class ExprParser(BaseParser):
 
         return item
 
+    def parse_group_by(self):
+        if self.match(GROUP):
+            self.accept(GROUP)
+            self.accept(BY)
+
+            group_by = SelectGroupBy()
+            while True:
+                group_by.items.append(self.expr())
+                if not self.match(COMMA):
+                    break
+                else:
+                    self.next_token()
+
+            if self.match(HAVING):
+                self.accept(HAVING)
+                group_by.having = self.expr()
+        elif self.match(HAVING):
+            group_by = SelectGroupBy()
+            self.accept(HAVING)
+            group_by.having = self.expr()
+
+        return group_by
+
 
 class Parser(BaseParser):
     def __init__(self, sql_or_lexer):
@@ -433,6 +456,9 @@ class Parser(BaseParser):
 
     def parse_order_by(self):
         return self.expr_parser.parse_order_by()
+
+    def parse_group_by(self):
+        return self.expr_parser.parse_group_by()
 
     def parse(self):
         try:
@@ -469,6 +495,9 @@ class Parser(BaseParser):
 
         if self.match(ORDER):
             stmt.order_by = self.parse_order_by()
+
+        if self.match(GROUP) or self.match(HAVING):
+            stmt.group_by = self.parse_group_by()
 
         return stmt
 

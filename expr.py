@@ -91,3 +91,8 @@ class SelectOrderByItem:
 class SelectOrderBy:
     def __init__(self):
         self.items = []
+
+class SelectGroupBy:
+    def __init__(self):
+        self.items = []
+        self.having = None

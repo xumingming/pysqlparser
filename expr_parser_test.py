@@ -224,7 +224,6 @@ class ParserTestCase(unittest.TestCase):
     def test_parse_order_by(self):
         sql = "select id from xumm order by id desc, name asc, age"
         parser = create_parser(sql)
-        self.helper(sql)
         stmt = parser.parse()
         self.assertTrue(isinstance(stmt.order_by, SelectOrderBy))
         self.assertEqual(3, len(stmt.order_by.items))
@@ -234,3 +233,28 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(ORDER_BY_ASC, stmt.order_by.items[1].type)
         self.assertEqual("age", stmt.order_by.items[2].expr.name)
         self.assertEqual(ORDER_BY_ASC, stmt.order_by.items[2].type)
+
+    def test_parse_group_by(self):
+        sql = "select id from xumm group by id, name having id > 3"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.group_by, SelectGroupBy))
+        self.assertEqual(2, len(stmt.group_by.items))
+        self.assertEqual("id", stmt.group_by.items[0].name)
+        self.assertEqual("name", stmt.group_by.items[1].name)
+        self.assertIsNotNone(stmt.group_by.having)
+        self.assertTrue(isinstance(stmt.group_by.having, BinaryOpExpr))
+        self.assertEqual("id", stmt.group_by.having.left.name)
+        self.assertEqual(">", stmt.group_by.having.operator.name)
+        self.assertEqual(3, stmt.group_by.having.right.number)
+
+        sql = "select id from xumm having id > 3"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.group_by, SelectGroupBy))
+        self.assertEqual(0, len(stmt.group_by.items))
+        self.assertIsNotNone(stmt.group_by.having)
+        self.assertTrue(isinstance(stmt.group_by.having, BinaryOpExpr))
+        self.assertEqual("id", stmt.group_by.having.left.name)
+        self.assertEqual(">", stmt.group_by.having.operator.name)
+        self.assertEqual(3, stmt.group_by.having.right.number)
