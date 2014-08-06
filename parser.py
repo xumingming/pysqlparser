@@ -7,11 +7,9 @@ from op import *
 from traceback import print_exc
 from keywords import is_keyword
 
-
-class Parser:
-    def __init__(self, sql):
-        self.lexer = Lexer(sql)
-        self.next_token()
+class BaseParser:
+    def __init__(self, lexer):
+        self.lexer = lexer
 
     def token(self):
         """
@@ -25,40 +23,52 @@ class Parser:
     def next_token(self):
         self.lexer.next_token()
 
-    def parse(self):
-        try:
-            if self.match(SELECT):
-                return self.parse_select()
-            elif self.match(CREATE):
-                return self.parse_create_table()
 
-        except ParserException,e:
-            print "Exception: ", e.msg
-            print_exc(e)
-        except InvalidCharException,e:
-            print "Exception: ", e.msg
-            print_exc(e)
+    def match(self, token):
+        return self.token() == token
 
-    def parse_select(self):
-        self.accept(SELECT)
+    def match_any(self, tokens):
+        for tk in tokens:
+            if self.match(tk):
+                return True
 
-        stmt = SelectStatement()
-        while not self.match(FROM):
-            column = self.expr()
-            stmt.columns.append(column)
-            if self.match(COMMA):
-                self.accept(COMMA)
-            else:
-                break
-        self.accept(FROM)
+        return False
 
-        stmt.table_name = self.accept(IDENTIFIER)
+    def parser_error(self, token):
+        actual_token_name = 'None'
+        actual_token_str = 'None'
+        if self.token():
+            actual_token_name = str(self.token())
+            actual_token_str = self.token_str()
+        raise ParserException("expect " + token.name + ", actual: " + actual_token_name
+                              + "[" + actual_token_str + "], pos: " + str(self.lexer.pos)
+                              + ", error near: "
+                              + "\n=====================================================\n"
+                              + self.lexer.surroudings()
+                              + "\n=====================================================\n")
 
-        if self.match(WHERE):
-            self.accept(WHERE)
-            stmt.where = self.expr()
+    def accept_data_type(self):
+        matched = self.match_any([STRING, INT, BIGINT, DATETIME])
+        if matched:
+            ret = self.token_str()
+            self.next_token()
+            return ret
+        else:
+            self.parse_error([STRING, INT, BIGINT, DATETIME])
 
-        return stmt
+    def accept(self, token):
+        if self.match(token):
+            ret = self.token_str()
+            self.next_token()
+            return ret
+        else:
+            self.parser_error(token)
+
+
+class ExprParser(BaseParser):
+    def __init__(self, lexer):
+        self.lexer = lexer
+        BaseParser.__init__(self, self.lexer)
 
     def expr(self):
         if self.token() == STAR:
@@ -338,7 +348,8 @@ class Parser:
             expr = StringExpr(self.token_str())
             self.next_token()
         elif tok == SELECT:
-            expr = QueryExpr(self.parse_select())
+            select_parser = Parser(self.lexer)
+            expr = QueryExpr(select_parser.parse_select())
         elif tok == NULL:
             expr = NullExpr()
             self.next_token()
@@ -375,6 +386,57 @@ class Parser:
             expr = PropertyExpr(expr, name)
 
         return expr
+
+
+
+class Parser(BaseParser):
+    def __init__(self, sql_or_lexer):
+        if isinstance(sql_or_lexer, Lexer):
+            self.lexer = sql_or_lexer
+        else:
+            self.lexer = Lexer(sql_or_lexer)
+            self.next_token()
+
+        BaseParser.__init__(self, self.lexer)
+        self.expr_parser = ExprParser(self.lexer)
+
+    def expr(self):
+        return self.expr_parser.expr()
+
+    def parse(self):
+        try:
+            if self.match(SELECT):
+                return self.parse_select()
+            elif self.match(CREATE):
+                return self.parse_create_table()
+
+        except ParserException,e:
+            print "Exception: ", e.msg
+            print_exc(e)
+        except InvalidCharException,e:
+            print "Exception: ", e.msg
+            print_exc(e)
+
+    def parse_select(self):
+        self.accept(SELECT)
+
+        stmt = SelectStatement()
+        while not self.match(FROM):
+            column = self.expr()
+            stmt.columns.append(column)
+            if self.match(COMMA):
+                self.accept(COMMA)
+            else:
+                break
+        self.accept(FROM)
+
+        stmt.table_name = self.accept(IDENTIFIER)
+
+        if self.match(WHERE):
+            self.accept(WHERE)
+            stmt.where = self.expr()
+
+        return stmt
 
     def parse_column_definition(self):
         columns = []
@@ -428,42 +490,3 @@ class Parser:
 
         return stmt
 
-    def match(self, token):
-        return self.token() == token
-
-    def match_any(self, tokens):
-        for tk in tokens:
-            if self.match(tk):
-                return True
-
-        return False
-
-    def parser_error(self, token):
-        actual_token_name = 'None'
-        actual_token_str = 'None'
-        if self.token():
-            actual_token_name = str(self.token())
-            actual_token_str = self.token_str()
-        raise ParserException("expect " + token.name + ", actual: " + actual_token_name
-                              + "[" + actual_token_str + "], pos: " + str(self.lexer.pos)
-                              + ", error near: "
-                              + "\n=====================================================\n"
-                              + self.lexer.surroudings()
-                              + "\n=====================================================\n")
-
-    def accept_data_type(self):
-        matched = self.match_any([STRING, INT, BIGINT, DATETIME])
-        if matched:
-            ret = self.token_str()
-            self.next_token()
-            return ret
-        else:
-            self.parse_error([STRING, INT, BIGINT, DATETIME])
-
-    def accept(self, token):
-        if self.match(token):
-            ret = self.token_str()
-            self.next_token()
-            return ret
-        else:
-            self.parser_error(token)
