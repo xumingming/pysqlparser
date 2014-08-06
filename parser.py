@@ -77,7 +77,7 @@ class Parser:
         expr = self.bit_and_rest(expr)
         expr = self.bit_or_rest(expr)
         expr = self.in_rest(expr)
-        #expr = self.relational_rest(expr)
+        expr = self.relational_rest(expr)
         #expr = self.equality_rest(expr)
         #expr = self.and1_rest(expr)
         #expr = self.or1_rest(expr)
@@ -187,7 +187,7 @@ class Parser:
 
     def equality(self):
         expr = self.bit_or()
-        return self.equaility_rest(expr)
+        return self.equality_rest(expr)
 
     def equality_rest(self, expr):
         pass
@@ -197,7 +197,101 @@ class Parser:
         return self.relational_rest(expr)
 
     def relational_rest(self, expr):
-        pass
+        if self.match(LT):
+            op = LessThan
+            self.accept(LT)
+            if self.match(EQ):
+                self.accept(EQ)
+                op = LessThanOrEqual
+
+            right_expr = self.bit_or()
+            expr = BinaryOpExpr(expr, op, right_expr)
+        elif self.match(LTEQ):
+            self.accept(LTEQ)
+            right_expr = self.bit_or()
+            expr = BinaryOpExpr(expr, LessThanOrEqual, right_expr)
+        elif self.match(GT):
+            op = GreaterThan
+            self.accept(GT)
+            if self.match(EQ):
+                self.accept(EQ)
+                op = GreaterThanOrEqual
+
+            right_expr = self.bit_or()
+            expr = BinaryOpExpr(expr, op, right_expr)
+        elif self.match(GTEQ):
+            self.accept(GTEQ)
+            right_expr = self.bit_or()
+            expr = BinaryOpExpr(expr, GreaterThanOrEqual, right_expr)
+        elif self.match(LTGT):
+            self.accept(LTGT)
+            right_expr = self.bit_or()
+            expr = BinaryOpExpr(expr, LessThanOrGreater, right_expr)
+        elif self.match(LIKE):
+            self.accept(LIKE)
+            right_expr = self.bit_or()
+            expr = BinaryOpExpr(expr, Like, right_expr)
+        elif self.match(NOT):
+            self.accept(NOT)
+            expr = self.not_relational_rest(expr)
+        elif self.match(BETWEEN):
+            self.accept(BETWEEN)
+            begin_expr = self.bit_or()
+            self.accept(AND)
+            end_expr = self.bit_or()
+            expr = BetweenExpr(expr, begin_expr, end_expr)
+        elif self.match(IS):
+            self.accept(IS)
+            if self.match(NOT):
+                self.accept(NOT)
+                right_expr = self.primary()
+                expr = BinaryOpExpr(expr, IsNot, right_expr)
+            else:
+                right_expr = self.primary()
+                expr = BinaryOpExpr(expr, Is, right_expr)
+        elif self.match(IN):
+            expr = self.in_rest(expr)
+
+        return expr
+
+    def not_relational_rest(self, expr):
+        if self.match(LIKE):
+            self.accept(LIKE)
+            right_expr = self.equality()
+            right_expr = self.relational_rest(right_expr)
+
+            expr = BinaryOpExpr(expr, NotLike, right_expr)
+        elif self.match(IN):
+            self.accept(IN)
+            self.accept(LPAREN)
+            in_list_expr = InListExpr()
+            in_list_expr.not1 = True
+            in_list_expr.expr = expr
+            self.expr_list(in_list_expr.target_list)
+            self.accept(RPAREN)
+
+            if len(in_list_expr.target_list) == 1:
+                target_expr = in_list_expr.target_list[0]
+                if isinstance(target_expr, QueryExpr):
+                    in_sub_query_expr = InSubQueryExpr()
+                    in_sub_query_expr.not1 = True
+                    in_sub_query_expr.expr = in_list_expr.expr
+                    in_sub_query_expr.sub_query= target_expr
+                    expr = in_sub_query_expr
+
+            expr = self.relational_rest(expr)
+        elif self.match(BETWEEN):
+            self.accept(BETWEEN)
+            begin_expr = self.bit_or()
+            self.accept(AND)
+            end_expr = self.bit_or()
+
+            expr = BetweenExpr(expr, begin_expr, end_expr)
+            expr.not1 = True
+        else:
+            raise ParserException("invalid NOT clause")
+
+        return expr
 
     def and1(self):
         expr = self.relational()
@@ -225,8 +319,15 @@ class Parser:
         elif tok == LITERAL_FLOAT:
             expr = NumberExpr(float(self.token_str()))
             self.next_token()
+        elif tok == LITERAL_STRING:
+            expr = StringExpr(self.token_str())
+            self.next_token()
         elif tok == SELECT:
             expr = QueryExpr(self.parse_select())
+        elif tok == NULL:
+            expr = NullExpr()
+            self.next_token()
+
         return self.primary_rest(expr)
 
     def primary_rest(self, expr):

@@ -103,19 +103,22 @@ class Lexer:
         elif self.ch == '>':
             self.scan_char()
             if self.ch == '=':
+                self.scan_char()
                 self.token = GTEQ
                 self.token_str = '>='
             else:
                 self.token = GT
                 self.token_str = '>'
         elif self.ch == '<':
-            self.scan_char()()
+            self.scan_char()
             if self.ch == '=':
+                self.scan_char()
                 self.token = LTEQ
                 self.token_str = '<='
                 return
             elif self.ch == '>':
-                self.token = NEQ
+                self.scan_char()
+                self.token = LTGT
                 self.token_str = '<>'
                 return
             else:

@@ -4,6 +4,7 @@ keywords = {}
 keywords["ADD"] = ADD
 keywords["ALL"] = ALL
 keywords["ALTER"] = ALTER
+keywords["AND"] = AND
 keywords["AS"] = AS
 keywords["ASC"] = ASC
 keywords["BETWEEN"] = BETWEEN

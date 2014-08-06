@@ -52,8 +52,26 @@ class QueryExpr(Expr):
         self.sub_query = sub_query
         sub_query.parent = self
 
+
 class InSubQueryExpr(Expr):
     def __init__(self):
         self.not1 = False
         self.expr = None
         self.sub_query = None
+
+
+class BetweenExpr(Expr):
+    def __init__(self, test_expr, begin_expr, end_expr):
+        self.test_expr = test_expr
+        self.not1 = False
+        self.begin_expr = begin_expr
+        self.end_expr = end_expr
+
+
+class StringExpr(Expr):
+    def __init__(self, str):
+        self.str = str
+
+class NullExpr(Expr):
+    def __init__(self):
+        pass

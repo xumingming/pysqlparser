@@ -147,3 +147,73 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(1, len(sub_query.columns))
         self.assertEqual("id", sub_query.columns[0].name)
         self.assertEqual("test", sub_query.table_name)
+
+    def test_relational(self):
+        sql = "select id from xumm where id < 1"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("<", stmt.where.operator.name)
+
+        sql = "select id from xumm where id <= 1"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("<=", stmt.where.operator.name)
+
+        sql = "select id from xumm where id > 1"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual(">", stmt.where.operator.name)
+
+        sql = "select id from xumm where id >= 1"
+        parser = create_parser(sql)
+
+        stmt = parser.parse()
+        self.assertEqual(">=", stmt.where.operator.name)
+
+        sql = "select id from xumm where id <> 1"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("<>", stmt.where.operator.name)
+
+        sql = "select id from xumm where name like 'hello'"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("LIKE", stmt.where.operator.name)
+
+        sql = "select id from xumm where name not like 'hello'"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("NOT LIKE", stmt.where.operator.name)
+
+        sql = "select id from xumm where id between 1 and 3"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.where, BetweenExpr))
+        self.assertTrue(isinstance(stmt.where.test_expr, IdentifierExpr))
+        self.assertEqual("id", stmt.where.test_expr.name)
+        self.assertTrue(isinstance(stmt.where.begin_expr, NumberExpr))
+        self.assertEqual(1, stmt.where.begin_expr.number)
+        self.assertTrue(isinstance(stmt.where.end_expr, NumberExpr))
+        self.assertEqual(3, stmt.where.end_expr.number)
+
+        sql = "select id from xumm where id not between 1 and 3"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertTrue(isinstance(stmt.where, BetweenExpr))
+        self.assertTrue(isinstance(stmt.where.test_expr, IdentifierExpr))
+        self.assertEqual("id", stmt.where.test_expr.name)
+        self.assertTrue(isinstance(stmt.where.begin_expr, NumberExpr))
+        self.assertEqual(1, stmt.where.begin_expr.number)
+        self.assertTrue(isinstance(stmt.where.end_expr, NumberExpr))
+        self.assertEqual(3, stmt.where.end_expr.number)
+        self.assertTrue(stmt.where.not1)
+
+        sql = "select id from xumm where name is null"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("IS", stmt.where.operator.name)
+
+        sql = "select id from xumm where name is not null"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("IS NOT", stmt.where.operator.name)
