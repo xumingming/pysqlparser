@@ -388,7 +388,6 @@ class ExprParser(BaseParser):
         return expr
 
 
-
 class Parser(BaseParser):
     def __init__(self, sql_or_lexer):
         if isinstance(sql_or_lexer, Lexer):
