@@ -217,3 +217,10 @@ class ParserTestCase(unittest.TestCase):
         parser = create_parser(sql)
         stmt = parser.parse()
         self.assertEqual("IS NOT", stmt.where.operator.name)
+
+    def test_equality(self):
+        sql = "select id from xumm where id = 1"
+        self.helper(sql)
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("=", stmt.where.operator.name)

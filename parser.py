@@ -78,7 +78,7 @@ class Parser:
         expr = self.bit_or_rest(expr)
         expr = self.in_rest(expr)
         expr = self.relational_rest(expr)
-        #expr = self.equality_rest(expr)
+        expr = self.equality_rest(expr)
         #expr = self.and1_rest(expr)
         #expr = self.or1_rest(expr)
 
@@ -190,7 +190,13 @@ class Parser:
         return self.equality_rest(expr)
 
     def equality_rest(self, expr):
-        pass
+        if self.match(EQ):
+            self.accept(EQ)
+            right_expr = self.bit_or()
+            right_expr = self.equality_rest(right_expr)
+            expr = BinaryOpExpr(expr, Equality, right_expr)
+
+        return expr
 
     def relational(self):
         expr = self.equaility()

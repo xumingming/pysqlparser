@@ -3,6 +3,7 @@ class Operator:
         self.name = name
 
 Multiply = Operator("*")
+Equality = Operator("=")
 Divide = Operator("/")
 Modulus = Operator("%")
 Add = Operator("+")
