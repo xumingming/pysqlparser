@@ -328,7 +328,7 @@ class ExprParser(BaseParser):
     def or1_rest(self, expr):
         while self.match(OR):
             self.accept(OR)
-            right_expr = self.relational()
+            right_expr = self.and1()
             expr = BinaryOpExpr(expr, BooleanOr, right_expr)
 
         return expr
