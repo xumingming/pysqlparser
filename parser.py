@@ -1,5 +1,5 @@
 from lexer import Lexer
-from token import *
+from token1 import *
 from exception import ParserException, InvalidCharException
 from stmt import *
 from expr import *

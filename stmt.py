@@ -1,3 +1,7 @@
+class ASTNode:
+    def accept(self, visitor):
+        visitor.visit(self)
+
 class Statement:
     def __init__(self, type):
         self.type = type
@@ -12,7 +16,7 @@ class CreateTableStatement(Statement):
         self.partition_columns = []
         self.lifecycle = None
 
-class CreateTableColumn:
+class CreateTableColumn(ASTNode):
     def __init__(self):
         self.name = None
         self.type = None

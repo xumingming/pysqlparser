@@ -1,6 +1,6 @@
 import unittest
 from lexer import Lexer
-from token import *
+from token1 import *
 
 def create_lexer(sql):
     return Lexer(sql)

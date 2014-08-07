@@ -1,4 +1,4 @@
-from token import *
+from token1 import *
 
 keywords = {}
 keywords["ADD"] = ADD

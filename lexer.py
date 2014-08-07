@@ -1,4 +1,4 @@
-from token import *
+from token1 import *
 from utils import *
 from keywords import get_keyword
 from exception import EofException, InvalidCharException

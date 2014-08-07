@@ -56,6 +56,10 @@ class Formatter:
         self.append("FROM ")
         self.append(self.stmt.table_name)
 
+        if self.stmt.where:
+            self.println()
+            self.append("WHERE")
+
     def format_create(self):
         self.append("CREATE TABLE")
         if self.stmt.if_not_exists:

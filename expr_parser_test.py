@@ -1,7 +1,7 @@
 import unittest
 from lexer import Lexer
 from parser import Parser
-from token import *
+from token1 import *
 from expr import *
 from op import *
 
