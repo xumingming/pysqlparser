@@ -2,7 +2,7 @@ class ASTNode:
     def accept(self, visitor):
         visitor.visit(self)
 
-class Statement:
+class Statement(ASTNode):
     def __init__(self, type):
         self.type = type
 

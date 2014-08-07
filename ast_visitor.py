@@ -137,6 +137,20 @@ class AstVisitor:
             cnt += 1
         self.append(")")
 
+    @v.when(InSubQueryExpr)
+    def visit(self, expr):
+        expr.expr.accept(self)
+
+        if expr.not1:
+            self.append(" NOT")
+        self.append(" IN (")
+        self.increment_indent_cnt()
+        self.println()
+        expr.sub_query.accept(self)
+        self.decrement_indent_cnt()
+        self.println()
+        self.append(")")
+
     @v.when(BinaryOpExpr)
     def visit(self, expr):
         if isinstance(expr.left, Expr):
