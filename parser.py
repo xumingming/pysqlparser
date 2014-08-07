@@ -72,6 +72,7 @@ class ExprParser(BaseParser):
 
     def expr(self):
         if self.token() == STAR:
+            self.accept(STAR)
             return AllColumnExpr()
 
         expr = self.primary()

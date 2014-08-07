@@ -32,6 +32,14 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual("xumm", stmt.columns[0].owner.name)
         self.assertEqual("id", stmt.columns[0].name)
 
+    def test_select_star(self):
+        sql = "select * from xumm"
+        parser = create_parser(sql)
+        self.helper(sql)
+        stmt = parser.parse()
+        self.assertEqual(1, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0], AllColumnExpr))
+
     def test_select_number(self):
         sql = "select 1 from xumm"
         parser = create_parser(sql)
