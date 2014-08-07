@@ -121,6 +121,22 @@ class AstVisitor:
     def visit(self, expr):
         self.append(expr.name)
 
+    @v.when(InListExpr)
+    def visit(self, expr):
+        expr.expr.accept(self)
+        if expr.not1:
+            self.append(" NOT")
+        self.append(" IN (")
+
+        cnt = 0
+        for item in expr.target_list:
+            item.accept(self)
+            if cnt < len(expr.target_list) - 1:
+                self.append(", ")
+
+            cnt += 1
+        self.append(")")
+
     @v.when(BinaryOpExpr)
     def visit(self, expr):
         if isinstance(expr.left, Expr):

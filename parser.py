@@ -285,6 +285,7 @@ class ExprParser(BaseParser):
             in_list_expr.expr = expr
             self.expr_list(in_list_expr.target_list)
             self.accept(RPAREN)
+            expr = in_list_expr
 
             if len(in_list_expr.target_list) == 1:
                 target_expr = in_list_expr.target_list[0]
