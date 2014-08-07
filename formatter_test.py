@@ -22,7 +22,8 @@ class ParserTestCase(unittest.TestCase):
 
     def test_select(self):
         parser = create_parser("""
-        select id, name, age from xumm""")
+        select id, name, age from xumm
+        where id > 1 and name > 'hello' or age <> 10""")
         stmt = parser.parse()
         visitor = AstVisitor()
         visitor.visit(stmt)

@@ -1,6 +1,6 @@
 import visit as v
 from stmt import *
-
+from expr import *
 
 class AstVisitor:
     def __init__(self):
@@ -104,4 +104,34 @@ class AstVisitor:
 
         if stmt.where:
             self.println()
-            self.append("WHERE")
+            self.append("WHERE ")
+            stmt.where.accept(self)
+
+    @v.when(NumberExpr)
+    def visit(self, expr):
+        self.append(expr.number)
+
+    @v.when(StringExpr)
+    def visit(self, expr):
+        self.append("'")
+        self.append(expr.str)
+        self.append("'")
+
+    @v.when(IdentifierExpr)
+    def visit(self, expr):
+        self.append(expr.name)
+
+    @v.when(BinaryOpExpr)
+    def visit(self, expr):
+        if isinstance(expr.left, Expr):
+            expr.left.accept(self)
+        else:
+            self.append(expr.left)
+        self.append(" ")
+        self.append(expr.operator.name)
+        self.append(" ")
+
+        if isinstance(expr.right, Expr):
+            expr.right.accept(self)
+        else:
+            self.append(expr.right)

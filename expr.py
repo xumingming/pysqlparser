@@ -2,6 +2,9 @@ class Expr:
     def __init__(self):
         self.parent = None
 
+    def accept(self, visitor):
+        visitor.visit(self)
+
 
 class AllColumnExpr(Expr):
     def __init__(self):
