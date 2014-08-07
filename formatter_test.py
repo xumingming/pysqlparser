@@ -24,7 +24,8 @@ class ParserTestCase(unittest.TestCase):
         parser = create_parser("""
         select id, name, age from xumm
         where id > 1 and name > 'hello' or age <> 10 and id not in (1, 2, 3, 4)
-        or id in (select id from ids where id in (select id1 from ids1 where id2 in (select id from hello)))""")
+        or id in (select id from ids where id in (select id1 from ids1 where id2 in (select id from hello)))
+        and cnt in (select name from xumm)""")
         #parser = create_parser("select id from xumm where id not in (1,2,3)")
         stmt = parser.parse()
         #print stmt.where.right.operator.name
