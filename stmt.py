@@ -30,7 +30,7 @@ class SelectStatement(Statement):
         self.where = None
         self.order_by = None
 
-class SelectItem:
-    def __init__(self):
-        self.expr = None
-        self.alias = None
+class SelectItem(ASTNode):
+    def __init__(self, expr, alias):
+        self.expr = expr
+        self.alias = alias

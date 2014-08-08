@@ -482,7 +482,9 @@ class Parser(BaseParser):
         stmt = SelectStatement()
         while not self.match(FROM):
             column = self.expr()
-            stmt.columns.append(column)
+            alias = self.parse_alias()
+            select_item = SelectItem(column, alias)
+            stmt.columns.append(select_item)
             if self.match(COMMA):
                 self.accept(COMMA)
             else:
@@ -554,4 +556,18 @@ class Parser(BaseParser):
                     stmt.lifecycle = self.accept(LITERAL_INT)
 
         return stmt
+
+    def parse_alias(self):
+        if self.match(AS):
+            self.accept(AS)
+
+            alias = self.accept(IDENTIFIER)
+
+            return alias
+
+        if self.match(IDENTIFIER):
+            alias = self.accept(IDENTIFIER)
+            return alias
+
+        return None
 

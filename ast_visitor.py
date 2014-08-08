@@ -81,11 +81,19 @@ class AstVisitor:
             self.append("LIFECYCLE ")
             self.append(stmt.lifecycle)
 
+    @v.when(SelectItem)
+    def visit(self, select_item):
+        select_item.expr.accept(self)
+        if select_item.alias:
+            self.append(" AS ")
+            self.append(select_item.alias)
+
     def visit_select_columns(self, stmt):
         self.increment_indent_cnt()
         idx = 0
         for column in stmt.columns:
-            self.append(column)
+            #self.append(column)
+            column.accept(self)
             if idx < len(stmt.columns) - 1:
                 self.append(",")
 

@@ -22,7 +22,7 @@ class ParserTestCase(unittest.TestCase):
 
     def test_select(self):
         parser = create_parser("""
-        select id, name, age from xumm
+        select id as id1, name name1, age from xumm
         where id > 1 and name > 'hello' or age <> 10 and id not in (1, 2, 3, 4)
         or id in (select id from ids where id in (select id1 from ids1 where id2 in (select id from hello)))
         and cnt in (select name from xumm)""")

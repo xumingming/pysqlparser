@@ -28,9 +28,9 @@ class ParserTestCase(unittest.TestCase):
         stmt = parser.parse()
         self.assertEqual("select", stmt.type)
         self.assertEqual(3, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], PropertyExpr))
-        self.assertEqual("xumm", stmt.columns[0].owner.name)
-        self.assertEqual("id", stmt.columns[0].name)
+        self.assertTrue(isinstance(stmt.columns[0].expr, PropertyExpr))
+        self.assertEqual("xumm", stmt.columns[0].expr.owner.name)
+        self.assertEqual("id", stmt.columns[0].expr.name)
 
     def test_select_star(self):
         sql = "select * from xumm"
@@ -38,7 +38,7 @@ class ParserTestCase(unittest.TestCase):
         self.helper(sql)
         stmt = parser.parse()
         self.assertEqual(1, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], AllColumnExpr))
+        self.assertTrue(isinstance(stmt.columns[0].expr, AllColumnExpr))
 
     def test_select_number(self):
         sql = "select 1 from xumm"
@@ -46,5 +46,5 @@ class ParserTestCase(unittest.TestCase):
         stmt = parser.parse()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], NumberExpr))
-        self.assertEqual(1, stmt.columns[0].number)
+        self.assertTrue(isinstance(stmt.columns[0].expr, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].expr.number)

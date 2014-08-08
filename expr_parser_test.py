@@ -23,22 +23,22 @@ class ParserTestCase(unittest.TestCase):
         stmt = parser.parse()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], BinaryOpExpr))
-        self.assertTrue(isinstance(stmt.columns[0].left, BinaryOpExpr))
-        self.assertEqual(Modulus, stmt.columns[0].operator)
-        self.assertTrue(isinstance(stmt.columns[0].right, NumberExpr))
-        self.assertEqual(4, stmt.columns[0].right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
+        self.assertTrue(isinstance(stmt.columns[0].expr.left, BinaryOpExpr))
+        self.assertEqual(Modulus, stmt.columns[0].expr.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.right, NumberExpr))
+        self.assertEqual(4, stmt.columns[0].expr.right.number)
 
-        self.assertTrue(isinstance(stmt.columns[0].left.left, BinaryOpExpr))
-        self.assertEqual(Divide, stmt.columns[0].left.operator)
-        self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
-        self.assertEqual(3, stmt.columns[0].left.right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.left, BinaryOpExpr))
+        self.assertEqual(Divide, stmt.columns[0].expr.left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.right, NumberExpr))
+        self.assertEqual(3, stmt.columns[0].expr.left.right.number)
 
-        self.assertTrue(isinstance(stmt.columns[0].left.left.left, NumberExpr))
-        self.assertEqual(Multiply, stmt.columns[0].left.left.operator)
-        self.assertTrue(isinstance(stmt.columns[0].left.left.right, NumberExpr))
-        self.assertEqual(1, stmt.columns[0].left.left.left.number)
-        self.assertEqual(2, stmt.columns[0].left.left.right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.left.left, NumberExpr))
+        self.assertEqual(Multiply, stmt.columns[0].expr.left.left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.left.right, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].expr.left.left.left.number)
+        self.assertEqual(2, stmt.columns[0].expr.left.left.right.number)
 
     def test_additive_operator(self):
         sql = "select 1 + 2 - 3 from xumm"
@@ -46,17 +46,17 @@ class ParserTestCase(unittest.TestCase):
         stmt = parser.parse()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], BinaryOpExpr))
-        self.assertTrue(isinstance(stmt.columns[0].left, BinaryOpExpr))
-        self.assertEqual(Subtract, stmt.columns[0].operator)
-        self.assertTrue(isinstance(stmt.columns[0].right, NumberExpr))
-        self.assertEqual(3, stmt.columns[0].right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
+        self.assertTrue(isinstance(stmt.columns[0].expr.left, BinaryOpExpr))
+        self.assertEqual(Subtract, stmt.columns[0].expr.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.right, NumberExpr))
+        self.assertEqual(3, stmt.columns[0].expr.right.number)
 
-        self.assertTrue(isinstance(stmt.columns[0].left.left, NumberExpr))
-        self.assertEqual(Add, stmt.columns[0].left.operator)
-        self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
-        self.assertEqual(1, stmt.columns[0].left.left.number)
-        self.assertEqual(2, stmt.columns[0].left.right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.left, NumberExpr))
+        self.assertEqual(Add, stmt.columns[0].expr.left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.right, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].expr.left.left.number)
+        self.assertEqual(2, stmt.columns[0].expr.left.right.number)
 
     def test_bit_and_operator(self):
         sql = "select 1 & 2 & 3 from xumm"
@@ -64,17 +64,17 @@ class ParserTestCase(unittest.TestCase):
         stmt = parser.parse()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], BinaryOpExpr))
-        self.assertTrue(isinstance(stmt.columns[0].left, BinaryOpExpr))
-        self.assertEqual(BitwiseAnd, stmt.columns[0].operator)
-        self.assertTrue(isinstance(stmt.columns[0].right, NumberExpr))
-        self.assertEqual(3, stmt.columns[0].right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
+        self.assertTrue(isinstance(stmt.columns[0].expr.left, BinaryOpExpr))
+        self.assertEqual(BitwiseAnd, stmt.columns[0].expr.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.right, NumberExpr))
+        self.assertEqual(3, stmt.columns[0].expr.right.number)
 
-        self.assertTrue(isinstance(stmt.columns[0].left.left, NumberExpr))
-        self.assertEqual(BitwiseAnd, stmt.columns[0].left.operator)
-        self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
-        self.assertEqual(1, stmt.columns[0].left.left.number)
-        self.assertEqual(2, stmt.columns[0].left.right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.left, NumberExpr))
+        self.assertEqual(BitwiseAnd, stmt.columns[0].expr.left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.right, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].expr.left.left.number)
+        self.assertEqual(2, stmt.columns[0].expr.left.right.number)
 
     def test_bit_or_operator(self):
         sql = "select 1 | 2 | 3 from xumm"
@@ -82,17 +82,17 @@ class ParserTestCase(unittest.TestCase):
         stmt = parser.parse()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
-        self.assertTrue(isinstance(stmt.columns[0], BinaryOpExpr))
-        self.assertTrue(isinstance(stmt.columns[0].left, BinaryOpExpr))
-        self.assertEqual(BitwiseOr, stmt.columns[0].operator)
-        self.assertTrue(isinstance(stmt.columns[0].right, NumberExpr))
-        self.assertEqual(3, stmt.columns[0].right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
+        self.assertTrue(isinstance(stmt.columns[0].expr.left, BinaryOpExpr))
+        self.assertEqual(BitwiseOr, stmt.columns[0].expr.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.right, NumberExpr))
+        self.assertEqual(3, stmt.columns[0].expr.right.number)
 
-        self.assertTrue(isinstance(stmt.columns[0].left.left, NumberExpr))
-        self.assertEqual(BitwiseOr, stmt.columns[0].left.operator)
-        self.assertTrue(isinstance(stmt.columns[0].left.right, NumberExpr))
-        self.assertEqual(1, stmt.columns[0].left.left.number)
-        self.assertEqual(2, stmt.columns[0].left.right.number)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.left, NumberExpr))
+        self.assertEqual(BitwiseOr, stmt.columns[0].expr.left.operator)
+        self.assertTrue(isinstance(stmt.columns[0].expr.left.right, NumberExpr))
+        self.assertEqual(1, stmt.columns[0].expr.left.left.number)
+        self.assertEqual(2, stmt.columns[0].expr.left.right.number)
 
     def test_in_rest(self):
         sql = "select id from xumm where id in (1, 2, 3)"
@@ -121,7 +121,7 @@ class ParserTestCase(unittest.TestCase):
 
         sub_query = stmt.where.sub_query
         self.assertEqual(1, len(sub_query.columns))
-        self.assertEqual("id", sub_query.columns[0].name)
+        self.assertEqual("id", sub_query.columns[0].expr.name)
         self.assertEqual("test", sub_query.table_name)
 
     def test_relational(self):
