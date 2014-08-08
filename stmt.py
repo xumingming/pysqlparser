@@ -34,3 +34,35 @@ class SelectItem(ASTNode):
     def __init__(self, expr, alias):
         self.expr = expr
         self.alias = alias
+
+class JoinType:
+    def __init__(self, name):
+        self.name = name
+
+LEFT_OUTER_JOIN = JoinType("LEFT JOIN")
+RIGHT_OUTER_JOIN = JoinType("RIGHT JOIN")
+FULL_OUTER_JOIN = JoinType("FULL JOIN")
+INNER_JOIN = JoinType("INNER JOIN")
+COMMA_JOIN = JoinType(",")
+JOIN_JOIN = JoinType("JOIN")
+
+
+class TableSourceBase(ASTNode):
+    def __init__(self):
+        self.alias = None
+
+
+class TableSource(TableSourceBase):
+    def __init__(self):
+        self.expr = None
+        TableSourceBase.__init__(self)
+
+
+class JoinTableSource(TableSourceBase):
+    def __init__(self):
+        self.left = None
+        self.join_type = None
+        self.right = None
+        self.condition = None
+        TableSourceBase.__init__(self)
+

@@ -122,7 +122,7 @@ class ParserTestCase(unittest.TestCase):
         sub_query = stmt.where.sub_query
         self.assertEqual(1, len(sub_query.columns))
         self.assertEqual("id", sub_query.columns[0].expr.name)
-        self.assertEqual("test", sub_query.table_name)
+        self.assertEqual("test", sub_query.table_name.expr.name)
 
     def test_relational(self):
         sql = "select id from xumm where id < 1"

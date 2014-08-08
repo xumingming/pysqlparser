@@ -39,6 +39,7 @@ HAVING = Token("HAVING")
 IF = Token("IF")
 IN = Token("IN")
 INT = Token("INT")
+INNER = Token("INNER")
 INSERT = Token("INSERT")
 INTO = Token("INTO")
 IS = Token("IS")
@@ -109,4 +110,4 @@ LITERAL_COMMENT = Token("LITERAL_COMMENT")
 
 # miscs
 NUMBER = Token("NUM")
-IDENTIFIER = Token("IDENFIER")
+IDENTIFIER = Token("IDENTIFIER")

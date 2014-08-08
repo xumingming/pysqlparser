@@ -32,6 +32,7 @@ keywords["HAVING"] = HAVING
 keywords["IF"] = IF
 keywords["IN"] = IN
 keywords["INT"] = INT
+keywords["INNER"] = INNER
 keywords["INSERT"] = INSERT
 keywords["INTO"] = INTO
 keywords["IS"] = IS

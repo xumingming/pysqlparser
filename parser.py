@@ -491,7 +491,7 @@ class Parser(BaseParser):
                 break
         self.accept(FROM)
 
-        stmt.table_name = self.accept(IDENTIFIER)
+        stmt.table_name = self.parse_table_source()
 
         if self.match(WHERE):
             self.accept(WHERE)
@@ -571,3 +571,67 @@ class Parser(BaseParser):
 
         return None
 
+    def parse_table_source(self):
+        if self.match(LPAREN):
+            pass
+
+        table_source = TableSource()
+        table_source.expr = self.expr()
+
+        return self.parse_table_source_rest(table_source)
+
+    def parse_table_source_rest(self, table_source):
+        if not table_source.alias:
+            if not self.match(LEFT) and not self.match(RIGHT) and not self.match(FULL):
+                alias = self.parse_alias()
+                if alias:
+                    table_source.alias = alias
+                    return self.parse_table_source_rest(table_source)
+
+        join_type = None
+
+        if self.match(LEFT):
+            self.accept(LEFT)
+            if self.match(OUTER):
+                self.accept(OUTER)
+
+            self.accept(JOIN)
+            join_type = LEFT_OUTER_JOIN
+        elif self.match(RIGHT):
+            self.accept(RIGHT)
+            if self.match(OUTER):
+                self.accept(OUTER)
+
+            self.accept(JOIN)
+            join_type = RIGHT_OUTER_JOIN
+        elif self.match(FULL):
+            self.accept(FULL)
+            if self.match(OUTER):
+                self.accept(OUTER)
+
+            self.accept(JOIN)
+            join_type = FULL_OUTER_JOIN
+        elif self.match(INNER):
+            self.accept(INNER)
+            self.accept(JOIN)
+
+            join_type = INNER_JOIN
+        elif self.match(JOIN):
+            self.accept(JOIN)
+            join_type = JOIN_JOIN
+        elif self.match(COMMA):
+            self.accept(COMMA)
+            join_type = COMMA_JOIN
+
+        if join_type:
+            join_table_source = JoinTableSource()
+            join_table_source.left = table_source
+            join_table_source.join_type = join_type
+            join_table_source.right = self.parse_table_source()
+            if self.match(ON):
+                self.accept(ON)
+                join_table_source.condition = self.expr()
+
+            return self.parse_table_source_rest(join_table_source)
+        else:
+            return table_source

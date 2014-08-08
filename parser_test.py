@@ -4,6 +4,7 @@ from parser import Parser
 from token1 import *
 from expr import *
 from op import *
+from stmt import *
 
 def create_parser(sql):
     return Parser(sql)
@@ -35,7 +36,6 @@ class ParserTestCase(unittest.TestCase):
     def test_select_star(self):
         sql = "select * from xumm"
         parser = create_parser(sql)
-        self.helper(sql)
         stmt = parser.parse()
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, AllColumnExpr))
@@ -48,3 +48,38 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, NumberExpr))
         self.assertEqual(1, stmt.columns[0].expr.number)
+
+    def test_parse_table_name(self):
+        sql = "select 1 from xumm as xumm1"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("select", stmt.type)
+        self.assertTrue(isinstance(stmt.table_name, TableSource))
+        self.assertEqual("xumm", stmt.table_name.expr.name)
+        self.assertEqual("xumm1", stmt.table_name.alias)
+
+        # inner join
+        sql = "select 1 from xumm as xumm1 " \
+              "inner join xumm2 on xumm1.id = xumm2.id2 " \
+              "left join xumm3 on xumm2.id2 = xumm3.id3 " \
+              "right outer join xumm4"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual("select", stmt.type)
+        self.assertTrue(isinstance(stmt.table_name, JoinTableSource))
+        self.assertTrue(isinstance(stmt.table_name.left, JoinTableSource))
+        self.assertTrue(isinstance(stmt.table_name.right, TableSource))
+        self.assertTrue(isinstance(stmt.table_name.left.left, JoinTableSource))
+        self.assertTrue(isinstance(stmt.table_name.left.left.left, TableSource))
+
+        self.assertEqual("xumm4", stmt.table_name.right.expr.name)
+        self.assertIsNone(stmt.table_name.right.alias)
+
+        self.assertEqual("xumm3", stmt.table_name.left.right.expr.name)
+        self.assertIsNone(stmt.table_name.left.right.alias)
+
+        self.assertEqual("xumm2", stmt.table_name.left.left.right.expr.name)
+        self.assertIsNone(stmt.table_name.left.left.right.alias)
+
+        self.assertEqual("xumm", stmt.table_name.left.left.left.expr.name)
+        self.assertEqual("xumm1", stmt.table_name.left.left.left.alias)
