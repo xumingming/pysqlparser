@@ -42,4 +42,16 @@ class ParserTestCase(unittest.TestCase):
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
 
-        
+    def test_it(self):
+        sql = """select id, name, age, *
+        from xumm.table1 a
+        where a.id ='1234'
+              and a.dt='20140807'"""
+
+        #self.helper(sql)
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        print stmt.table_name.expr.__class__
+        visitor = AstVisitor()
+        visitor.visit(stmt)
+        print "".join([str(x) for x in visitor.buf])

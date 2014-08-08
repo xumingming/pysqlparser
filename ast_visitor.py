@@ -108,7 +108,7 @@ class AstVisitor:
         self.append("SELECT ")
         self.visit_select_columns(stmt)
         self.append("FROM ")
-        self.append(stmt.table_name)
+        stmt.table_name.accept(self)
 
         if stmt.where:
             self.println()
@@ -173,3 +173,45 @@ class AstVisitor:
             expr.right.accept(self)
         else:
             self.append(expr.right)
+
+    @v.when(AllColumnExpr)
+    def visit(self, expr):
+        self.append("*")
+
+    @v.when(PropertyExpr)
+    def visit(self, expr):
+        self.append(expr.owner)
+        self.append(".")
+        self.append(expr.name)
+
+    @v.when(TableSource)
+    def visit(self, table_source):
+        table_source.expr.accept(self)
+        if table_source.alias:
+            self.append(" AS ")
+            self.append(table_source.alias)
+
+    @v.when(JoinTableSource)
+    def visit(self, table_source):
+        table_source.left.accept(self)
+        # join_type
+        if table_source.join_type == LEFT_OUTER_JOIN:
+            self.append(" LEFT OUTER JOIN ")
+        elif table_source.join_type == RIGHT_OUTER_JOIN:
+            self.append(" RIGHT OUTER JOIN ")
+        elif table_source.join_type == FULL_OUTER_JOIN:
+            self.append(" FULL OUTER JOIN ")
+        elif table_source.join_type == INNER_JOIN:
+            self.append(" INNER JOIN ")
+        elif table_source.join_type == COMMA_JOIN:
+            self.append(" , ")
+        elif table_source.join_type == JOIN_JOIN:
+            self.append(" JOIN ")
+
+        table_source.right.accept(self)
+
+        # condition
+        if table_source.condition:
+            self.append(" ON")
+            table_source.condition.visit(self)
+
