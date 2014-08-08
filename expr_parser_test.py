@@ -258,3 +258,41 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual("id", stmt.group_by.having.left.name)
         self.assertEqual(">", stmt.group_by.having.operator.name)
         self.assertEqual(3, stmt.group_by.having.right.number)
+
+    def test_method_rest(self):
+        sql = "select count(*) from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual(1, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0].expr, MethodInvokeExpr))
+        self.assertEqual(1, len(stmt.columns[0].expr.parameters))
+        self.assertTrue(isinstance(stmt.columns[0].expr.parameters[0], AllColumnExpr))
+        self.assertEqual("count", stmt.columns[0].expr.method_name)
+
+        sql = "select myfunc(1, '2') from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertEqual(1, len(stmt.columns))
+        self.assertTrue(isinstance(stmt.columns[0].expr, MethodInvokeExpr))
+        self.assertEqual(2, len(stmt.columns[0].expr.parameters))
+        self.assertTrue(isinstance(stmt.columns[0].expr.parameters[0], NumberExpr))
+        self.assertTrue(isinstance(stmt.columns[0].expr.parameters[1], StringExpr))
+        self.assertEqual("myfunc", stmt.columns[0].expr.method_name)
+
+    def test_parse_set_quantifier(self):
+        sql = "select id from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertIsNone(stmt.set_quantifier)
+
+        sql = "select distinct id from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertIsNotNone(stmt.set_quantifier)
+        self.assertEqual(SQ_DISTINCT, stmt.set_quantifier)
+
+        sql = "select all id from xumm"
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        self.assertIsNotNone(stmt.set_quantifier)
+        self.assertEqual(SQ_ALL, stmt.set_quantifier)

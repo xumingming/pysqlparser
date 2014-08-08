@@ -25,6 +25,7 @@ class CreateTableColumn(ASTNode):
 class SelectStatement(Statement):
     def __init__(self):
         Statement.__init__(self, "select")
+        self.set_quantifier = None
         self.columns = []
         self.table_name = None
         self.where = None
@@ -55,6 +56,11 @@ class TableSourceBase(ASTNode):
 class TableSource(TableSourceBase):
     def __init__(self):
         self.expr = None
+        TableSourceBase.__init__(self)
+
+class SubQueryTableSource(TableSourceBase):
+    def __init__(self):
+        self.select = None
         TableSourceBase.__init__(self)
 
 

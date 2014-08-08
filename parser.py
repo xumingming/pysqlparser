@@ -360,13 +360,34 @@ class ExprParser(BaseParser):
 
     def primary_rest(self, expr):
         if not expr:
-            raise ParserException("expr is None!")
+            raise ParserException("expr is None! we parsed to : " + self.lexer.sql[0:self.lexer.pos])
 
-        if self.token() == DOT:
+        if self.match(DOT):
             self.accept(DOT)
             expr = self.dot_rest(expr)
             return self.primary_rest(expr)
+        elif self.match(LPAREN):
+            return self.method_rest(expr, True)
         return expr
+
+    def method_rest(self, expr, accept_lparen):
+        if accept_lparen:
+            self.accept(LPAREN)
+
+        method = MethodInvokeExpr()
+        if isinstance(expr, PropertyExpr):
+            method_name = expr.name
+            method.method_name = method_name
+            method.owner = expr.owner
+        else:
+            method_name = str(expr)
+            method.method_name = method_name
+
+        if not self.match(RPAREN):
+            self.expr_list(method.parameters, method)
+
+        self.accept(RPAREN)
+        return self.primary_rest(method)
 
     def dot_rest(self, expr):
         if self.token() == STAR:
@@ -478,8 +499,15 @@ class Parser(BaseParser):
 
     def parse_select(self):
         self.accept(SELECT)
-
         stmt = SelectStatement()
+
+        if self.match(DISTINCT):
+            self.accept(DISTINCT)
+            stmt.set_quantifier = SQ_DISTINCT
+        elif self.match(ALL):
+            self.accept(ALL)
+            stmt.set_quantifier = SQ_ALL
+
         while not self.match(FROM):
             column = self.expr()
             alias = self.parse_alias()
@@ -573,7 +601,15 @@ class Parser(BaseParser):
 
     def parse_table_source(self):
         if self.match(LPAREN):
-            pass
+            self.accept(LPAREN)
+
+            table_source = None
+            if self.match(SELECT):
+                sub_query = self.parse_select()
+                table_source = SubQueryTableSource()
+                table_source.select = sub_query
+
+            return self.parse_table_source_rest(table_source)
 
         table_source = TableSource()
         table_source.expr = self.expr()

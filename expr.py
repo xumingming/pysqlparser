@@ -75,6 +75,14 @@ class StringExpr(Expr):
     def __init__(self, str):
         self.str = str
 
+
+class MethodInvokeExpr(Expr):
+    def __init__(self):
+        self.method_name = None
+        self.owner = None
+        self.parameters = []
+
+
 class NullExpr(Expr):
     def __init__(self):
         pass
@@ -99,3 +107,11 @@ class SelectGroupBy:
     def __init__(self):
         self.items = []
         self.having = None
+
+
+class SetQuantifier(Expr):
+    def __init__(self, name):
+        self.name = name
+
+SQ_ALL = SetQuantifier("ALL")
+SQ_DISTINCT = SetQuantifier("DISTINCT")

@@ -51,7 +51,33 @@ class ParserTestCase(unittest.TestCase):
         #self.helper(sql)
         parser = create_parser(sql)
         stmt = parser.parse()
-        print stmt.table_name.expr.__class__
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
+
+    def test_visit_method(self):
+        sql = """select count(a.atn) from xumm"""
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        visitor = AstVisitor()
+        visitor.visit(stmt)
+        print "".join([str(x) for x in visitor.buf])
+
+    def test_2(self):
+        sql = """select count(a.atn) from
+            (select distinct id as id1, name
+            from xumm.table1
+             where name = 'james'  and tag = 'bond'
+             and   to_date(gmt_create,'yyyy-mm-dd')  <  to_date('2014-04-01','yyyy-mm-dd') and dt='20140807') a
+             join
+            (select id as id1 from xumm.table2
+            where name = '600' and to_date(gmt_create,'yyyy-mm-dd')  <  to_date('2014-04-01','yyyy-mm-dd') and dt='joke') b
+            on a.atn=b.btn"""
+
+        parser = create_parser(sql)
+        stmt = parser.parse()
+        visitor = AstVisitor()
+        visitor.visit(stmt)
+        print "".join([str(x) for x in visitor.buf])
+
+

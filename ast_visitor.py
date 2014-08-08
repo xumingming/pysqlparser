@@ -106,6 +106,10 @@ class AstVisitor:
     @v.when(SelectStatement)
     def visit(self, stmt):
         self.append("SELECT ")
+        if stmt.set_quantifier:
+            stmt.set_quantifier.accept(self)
+            self.append(" ")
+
         self.visit_select_columns(stmt)
         self.append("FROM ")
         stmt.table_name.accept(self)
@@ -184,6 +188,23 @@ class AstVisitor:
         self.append(".")
         self.append(expr.name)
 
+    @v.when(MethodInvokeExpr)
+    def visit(self, expr):
+        if expr.owner:
+            self.append(expr.owner)
+            self.append(".")
+
+        self.append(expr.method_name)
+        self.append("(")
+        cnt = 0
+        for param in expr.parameters:
+            param.accept(self)
+            if cnt < len(expr.parameters) - 1:
+                self.append(",")
+                cnt += 1
+                
+        self.append(")")
+
     @v.when(TableSource)
     def visit(self, table_source):
         table_source.expr.accept(self)
@@ -214,4 +235,18 @@ class AstVisitor:
         if table_source.condition:
             self.append(" ON")
             table_source.condition.visit(self)
+
+    @v.when(SubQueryTableSource)
+    def visit(self, table_source):
+        self.increment_indent_cnt()
+        self.append("(")
+        self.println()
+        table_source.select.accept(self)
+        self.decrement_indent_cnt()
+        self.println()
+        self.append(")")
+
+    @v.when(SetQuantifier)
+    def visit(self, quantifier):
+        self.append(quantifier.name)
 
