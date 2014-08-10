@@ -79,5 +79,3 @@ class ParserTestCase(unittest.TestCase):
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
-
-

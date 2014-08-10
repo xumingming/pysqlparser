@@ -20,7 +20,7 @@ class ParserTestCase(unittest.TestCase):
     def test_multiplicative_operator(self):
         sql = "select 1 * 2 / 3 % 4 from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
@@ -43,7 +43,7 @@ class ParserTestCase(unittest.TestCase):
     def test_additive_operator(self):
         sql = "select 1 + 2 - 3 from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
@@ -61,7 +61,7 @@ class ParserTestCase(unittest.TestCase):
     def test_bit_and_operator(self):
         sql = "select 1 & 2 & 3 from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
@@ -79,7 +79,7 @@ class ParserTestCase(unittest.TestCase):
     def test_bit_or_operator(self):
         sql = "select 1 | 2 | 3 from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("select", stmt.type)
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, BinaryOpExpr))
@@ -98,7 +98,7 @@ class ParserTestCase(unittest.TestCase):
         sql = "select id from xumm where id in (1, 2, 3)"
 
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("select", stmt.type)
         self.assertTrue(isinstance(stmt.where, InListExpr))
         self.assertTrue(isinstance(stmt.where.expr, IdentifierExpr))
@@ -113,7 +113,7 @@ class ParserTestCase(unittest.TestCase):
 
         sql = "select id, name, age from xumm where id in (select id from test)"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.where, InSubQueryExpr))
         self.assertFalse(stmt.where.not1)
         self.assertTrue(isinstance(stmt.where.expr, IdentifierExpr))
@@ -127,43 +127,43 @@ class ParserTestCase(unittest.TestCase):
     def test_relational(self):
         sql = "select id from xumm where id < 1"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("<", stmt.where.operator.name)
 
         sql = "select id from xumm where id <= 1"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("<=", stmt.where.operator.name)
 
         sql = "select id from xumm where id > 1"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual(">", stmt.where.operator.name)
 
         sql = "select id from xumm where id >= 1"
         parser = create_parser(sql)
 
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual(">=", stmt.where.operator.name)
 
         sql = "select id from xumm where id <> 1"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("<>", stmt.where.operator.name)
 
         sql = "select id from xumm where name like 'hello'"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("LIKE", stmt.where.operator.name)
 
         sql = "select id from xumm where name not like 'hello'"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("NOT LIKE", stmt.where.operator.name)
 
         sql = "select id from xumm where id between 1 and 3"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.where, BetweenExpr))
         self.assertTrue(isinstance(stmt.where.test_expr, IdentifierExpr))
         self.assertEqual("id", stmt.where.test_expr.name)
@@ -174,7 +174,7 @@ class ParserTestCase(unittest.TestCase):
 
         sql = "select id from xumm where id not between 1 and 3"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.where, BetweenExpr))
         self.assertTrue(isinstance(stmt.where.test_expr, IdentifierExpr))
         self.assertEqual("id", stmt.where.test_expr.name)
@@ -186,24 +186,24 @@ class ParserTestCase(unittest.TestCase):
 
         sql = "select id from xumm where name is null"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("IS", stmt.where.operator.name)
 
         sql = "select id from xumm where name is not null"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("IS NOT", stmt.where.operator.name)
 
     def test_equality(self):
         sql = "select id from xumm where id = 1"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual("=", stmt.where.operator.name)
 
     def test_and_or_rest(self):
         sql = "select id from xumm where age < 1 and name > 2 and id = 3"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.where, BinaryOpExpr))
 
         self.assertTrue(isinstance(stmt.where.right, BinaryOpExpr))
@@ -224,7 +224,7 @@ class ParserTestCase(unittest.TestCase):
     def test_parse_order_by(self):
         sql = "select id from xumm order by id desc, name asc, age"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.order_by, SelectOrderBy))
         self.assertEqual(3, len(stmt.order_by.items))
         self.assertEqual("id", stmt.order_by.items[0].expr.name)
@@ -237,7 +237,7 @@ class ParserTestCase(unittest.TestCase):
     def test_parse_group_by(self):
         sql = "select id from xumm group by id, name having id > 3"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.group_by, SelectGroupBy))
         self.assertEqual(2, len(stmt.group_by.items))
         self.assertEqual("id", stmt.group_by.items[0].name)
@@ -250,7 +250,7 @@ class ParserTestCase(unittest.TestCase):
 
         sql = "select id from xumm having id > 3"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertTrue(isinstance(stmt.group_by, SelectGroupBy))
         self.assertEqual(0, len(stmt.group_by.items))
         self.assertIsNotNone(stmt.group_by.having)
@@ -262,7 +262,7 @@ class ParserTestCase(unittest.TestCase):
     def test_method_rest(self):
         sql = "select count(*) from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, MethodInvokeExpr))
         self.assertEqual(1, len(stmt.columns[0].expr.parameters))
@@ -271,7 +271,7 @@ class ParserTestCase(unittest.TestCase):
 
         sql = "select myfunc(1, '2') from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertEqual(1, len(stmt.columns))
         self.assertTrue(isinstance(stmt.columns[0].expr, MethodInvokeExpr))
         self.assertEqual(2, len(stmt.columns[0].expr.parameters))
@@ -282,17 +282,17 @@ class ParserTestCase(unittest.TestCase):
     def test_parse_set_quantifier(self):
         sql = "select id from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertIsNone(stmt.set_quantifier)
 
         sql = "select distinct id from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertIsNotNone(stmt.set_quantifier)
         self.assertEqual(SQ_DISTINCT, stmt.set_quantifier)
 
         sql = "select all id from xumm"
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse_select()
         self.assertIsNotNone(stmt.set_quantifier)
         self.assertEqual(SQ_ALL, stmt.set_quantifier)

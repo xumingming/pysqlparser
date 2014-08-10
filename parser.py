@@ -484,18 +484,25 @@ class Parser(BaseParser):
         return self.expr_parser.parse_group_by()
 
     def parse(self):
-        try:
-            if self.match(SELECT):
-                return self.parse_select()
-            elif self.match(CREATE):
-                return self.parse_create_table()
+        ret = []
+        while True:
+            try:
+                if self.match(SELECT):
+                    ret.append(self.parse_select())
+                elif self.match(CREATE):
+                    ret.append(self.parse_create_table())
+                elif self.match(SEMI):
+                    self.accept(SEMI)
+                else:
+                    break
+            except ParserException, e:
+                print "Exception: ", e.msg
+                print_exc(e)
+            except InvalidCharException, e:
+                print "Exception: ", e.msg
+                print_exc(e)
 
-        except ParserException,e:
-            print "Exception: ", e.msg
-            print_exc(e)
-        except InvalidCharException,e:
-            print "Exception: ", e.msg
-            print_exc(e)
+        return ret
 
     def parse_select(self):
         self.accept(SELECT)
