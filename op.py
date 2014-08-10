@@ -1,6 +1,7 @@
 class Operator:
     def __init__(self, name):
         self.name = name
+        self.priority = 100
 
 Multiply = Operator("*")
 Equality = Operator("=")

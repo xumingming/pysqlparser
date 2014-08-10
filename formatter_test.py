@@ -67,7 +67,7 @@ class ParserTestCase(unittest.TestCase):
         sql = """select count(a.atn) from
             (select distinct id as id1, name
             from xumm.table1
-             where name = 'james'  and tag = 'bond'
+            where name = 'james'  and tag = 'bond'
              and   to_date(gmt_create,'yyyy-mm-dd')  <  to_date('2014-04-01','yyyy-mm-dd') and dt='20140807') a
              join
             (select id as id1 from xumm.table2

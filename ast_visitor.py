@@ -1,6 +1,7 @@
 import visit as v
 from stmt import *
 from expr import *
+from op import *
 
 class AstVisitor:
     def __init__(self):
@@ -165,18 +166,75 @@ class AstVisitor:
 
     @v.when(BinaryOpExpr)
     def visit(self, expr):
-        if isinstance(expr.left, Expr):
-            expr.left.accept(self)
-        else:
-            self.append(expr.left)
-        self.append(" ")
-        self.append(expr.operator.name)
-        self.append(" ")
+        parent = expr.parent
+        is_root = isinstance(parent, SelectStatement)
+        is_relational = (expr.operator == BooleanAnd or
+                         expr.operator == BooleanOr)
 
-        if isinstance(expr.right, Expr):
-            expr.right.accept(self)
+        if is_root and is_relational:
+            self.increment_indent_cnt()
+
+        group_list = []
+        left = expr.left
+        while True:
+            if isinstance(left, BinaryOpExpr) and left.operator == expr.operator:
+                group_list.append(left.right)
+                left = left.left
+            else:
+                group_list.append(left)
+                break
+
+        for item in reversed(group_list):
+            self.visit_binary_left(item, expr.operator)
+
+            if is_relational:
+                self.println()
+            else:
+                self.append(" ")
+            self.append(expr.operator.name)
+            self.append(" ")
+
+        self.visit_binary_right(expr)
+
+        if is_root and is_relational:
+            self.decrement_indent_cnt()
+
+    def visit_binary_left(self, left, op):
+        if isinstance(left, BinaryOpExpr):
+            left_relational = left.operator == BooleanAnd or left.operator == BooleanOr
+            if left.operator.priority > op.priority:
+                if left_relational:
+                    self.increment_indent_cnt()
+
+                self.append("(")
+                left.accept(self)
+                self.append(")")
+
+                if left_relational:
+                    self.decrement_indent_cnt()
+            else:
+                left.accept(self)
         else:
-            self.append(expr.right)
+            left.accept(self)
+
+    def visit_binary_right(self, expr):
+        if isinstance(expr.right, BinaryOpExpr):
+            right = expr.right
+            right_relational = right.operator == BooleanAnd or right.operator == BooleanOr
+            if right.operator.priority > expr.operator.priority:
+                if right_relational:
+                    self.increment_indent_cnt()
+
+                self.append("(")
+                right.accept(self)
+                self.append(")")
+
+                if right_relational:
+                    self.decrement_indent_cnt()
+            else:
+                right.accept(self)
+        else:
+            expr.right.accept(self)
 
     @v.when(AllColumnExpr)
     def visit(self, expr):
@@ -184,14 +242,14 @@ class AstVisitor:
 
     @v.when(PropertyExpr)
     def visit(self, expr):
-        self.append(expr.owner)
+        expr.owner.accept(self)
         self.append(".")
         self.append(expr.name)
 
     @v.when(MethodInvokeExpr)
     def visit(self, expr):
         if expr.owner:
-            self.append(expr.owner)
+            expr.owner.accept(self)
             self.append(".")
 
         self.append(expr.method_name)

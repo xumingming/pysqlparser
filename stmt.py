@@ -31,6 +31,33 @@ class SelectStatement(Statement):
         self.where = None
         self.order_by = None
 
+    @property
+    def table_name(self):
+        return self.table_name
+
+    @table_name.setter
+    def table_name(self, table_name):
+        self.table_name = table_name
+        self.table_name.parent = self
+
+    @property
+    def where(self):
+        return self.where
+
+    @where.setter
+    def where(self, where):
+        self.where = where
+        self.where.parent = self
+
+    @property
+    def order_by(self):
+        return self.order_by
+
+    @order_by.setter
+    def order_by(self, order_by):
+        self.order_by = order_by
+        self.order_by.parent = self
+
 class SelectItem(ASTNode):
     def __init__(self, expr, alias):
         self.expr = expr

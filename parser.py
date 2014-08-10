@@ -380,7 +380,7 @@ class ExprParser(BaseParser):
             method.method_name = method_name
             method.owner = expr.owner
         else:
-            method_name = str(expr)
+            method_name = expr.name
             method.method_name = method_name
 
         if not self.match(RPAREN):
