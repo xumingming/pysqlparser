@@ -83,3 +83,12 @@ class ParserTestCase(unittest.TestCase):
 
         self.assertEqual("xumm", stmt.table_name.left.left.left.expr.name)
         self.assertEqual("xumm1", stmt.table_name.left.left.left.alias)
+
+    def test_parse_mutliple_statements(self):
+        sql = "select 1 from xumm as xumm1;create table xumm(id int, name string, age int);select 2 from xumm"
+        parser = create_parser(sql)
+        stmts = parser.parse()
+        self.assertEqual(3, len(stmts))
+        self.assertEqual("select", stmts[0].type)
+        self.assertEqual("create", stmts[1].type)
+        self.assertEqual("select", stmts[2].type)
