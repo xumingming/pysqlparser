@@ -491,6 +491,8 @@ class Parser(BaseParser):
                     ret.append(self.parse_select())
                 elif self.match(CREATE):
                     ret.append(self.parse_create_table())
+                elif self.match(DROP):
+                    ret.append(self.parse_drop())
                 elif self.match(SEMI):
                     self.accept(SEMI)
                 else:
@@ -503,6 +505,19 @@ class Parser(BaseParser):
                 print_exc(e)
 
         return ret
+
+    def parse_drop(self):
+        stmt = DropStatement()
+        self.accept(DROP)
+        self.accept(TABLE)
+        if self.match(IF):
+            self.accept(IF)
+            self.accept(EXISTS)
+            stmt.if_exists = True
+
+        stmt.table_name = self.expr()
+
+        return stmt
 
     def parse_select(self):
         self.accept(SELECT)

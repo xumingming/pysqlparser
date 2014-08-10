@@ -92,3 +92,20 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual("select", stmts[0].type)
         self.assertEqual("create", stmts[1].type)
         self.assertEqual("select", stmts[2].type)
+
+    def test_parse_drop(self):
+        sql = "drop table if exists hello"
+        parser = create_parser(sql)
+        stmt = parser.parse_drop()
+        self.assertEqual("drop", stmt.type)
+        self.assertTrue(stmt.if_exists)
+        self.assertEqual("hello", stmt.table_name.name)
+
+        sql = "drop table hello.world"
+        parser = create_parser(sql)
+        stmt = parser.parse_drop()
+        self.assertEqual("drop", stmt.type)
+        self.assertFalse(stmt.if_exists)
+        self.assertTrue(isinstance(stmt.table_name, PropertyExpr))
+        self.assertEqual("hello", stmt.table_name.owner.name)
+        self.assertEqual("world", stmt.table_name.name)

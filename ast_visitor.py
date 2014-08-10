@@ -309,3 +309,12 @@ class AstVisitor:
     def visit(self, quantifier):
         self.append(quantifier.name)
 
+    @v.when(DropStatement)
+    def visit(self, stmt):
+        self.append("DROP TABLE")
+        if stmt.if_exists:
+            self.append(" IF EXISTS")
+
+        self.append(" ")
+        stmt.table_name.accept(self)
+

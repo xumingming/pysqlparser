@@ -99,3 +99,10 @@ class JoinTableSource(TableSourceBase):
         self.condition = None
         TableSourceBase.__init__(self)
 
+
+class DropStatement(Statement):
+    def __init__(self):
+        Statement.__init__(self, "drop")
+        self.table_name = None
+        self.if_exists = False
+

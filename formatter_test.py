@@ -8,9 +8,6 @@ from ast_visitor import AstVisitor
 def create_parser(sql):
     return Parser(sql)
 
-def create_formatter(sql):
-    return Formatter(sql)
-
 class ParserTestCase(unittest.TestCase):
     def helper(self, sql):
         print "SQL: ", sql
@@ -26,9 +23,7 @@ class ParserTestCase(unittest.TestCase):
         where id > 1 and name > 'hello' or age <> 10 and id not in (1, 2, 3, 4)
         or id in (select id from ids where id in (select id1 from ids1 where id2 in (select id from hello)))
         and cnt in (select name from xumm)""")
-        #parser = create_parser("select id from xumm where id not in (1,2,3)")
-        stmt = parser.parse()
-        #print stmt.where.right.operator.name
+        stmt = parser.parse()[0]
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
@@ -37,7 +32,7 @@ class ParserTestCase(unittest.TestCase):
         parser = create_parser("""
         create table if not exists xumm (id int comment 'test', name string comment 'this is name', age int comment 'what a fuck comment')
         comment 'hello table' partitioned by (c1 int, c2 string) lifecycle 1""")
-        stmt = parser.parse()
+        stmt = parser.parse()[0]
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
@@ -50,7 +45,7 @@ class ParserTestCase(unittest.TestCase):
 
         #self.helper(sql)
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse()[0]
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
@@ -58,7 +53,7 @@ class ParserTestCase(unittest.TestCase):
     def test_visit_method(self):
         sql = """select count(a.atn) from xumm"""
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse()[0]
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
@@ -75,7 +70,15 @@ class ParserTestCase(unittest.TestCase):
             on a.atn=b.btn"""
 
         parser = create_parser(sql)
-        stmt = parser.parse()
+        stmt = parser.parse()[0]
+        visitor = AstVisitor()
+        visitor.visit(stmt)
+        print "".join([str(x) for x in visitor.buf])
+
+    def test_drop(self):
+        sql = "drop table if exists hello.world"
+        parser = create_parser(sql)
+        stmt = parser.parse()[0]
         visitor = AstVisitor()
         visitor.visit(stmt)
         print "".join([str(x) for x in visitor.buf])
